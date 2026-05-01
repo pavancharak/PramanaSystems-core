@@ -4,6 +4,10 @@ import fs from "fs";
 
 import path from "path";
 
+import {
+  canonicalize
+} from "@pramanasystems/core";
+
 import type {
   ExecutionToken,
 } from "./execution-token";
@@ -25,7 +29,7 @@ function hashRecord(
   return crypto
     .createHash("sha256")
     .update(
-      JSON.stringify(
+      canonicalize(
         record
       )
     )
@@ -136,7 +140,3 @@ export function appendAuditRecord(
     "utf8"
   );
 }
-
-
-
-

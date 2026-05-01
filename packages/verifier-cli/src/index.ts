@@ -3,7 +3,8 @@
 import fs from "node:fs";
 
 import {
-  LocalVerifier
+  LocalVerifier,
+  canonicalize
 } from "@pramanasystems/core";
 
 async function main() {
@@ -78,7 +79,7 @@ async function main() {
 
         const verified =
           await verifier.verify(
-            JSON.stringify(payload),
+            canonicalize(payload),
             parsed.signature
           );
 
@@ -164,7 +165,7 @@ async function main() {
 
         const verified =
           await verifier.verify(
-            JSON.stringify(payload),
+            canonicalize(payload),
             parsed.signature
           );
 
@@ -252,7 +253,7 @@ async function main() {
 
         const verified =
           await verifier.verify(
-            JSON.stringify(payload),
+            canonicalize(payload),
             parsed.signature
           );
 
