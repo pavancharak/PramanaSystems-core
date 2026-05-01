@@ -11,3 +11,4 @@ COPY . .
 EXPOSE 3000
 
 CMD ["npx", "tsx", "./packages/execution/src/server.ts"]
+

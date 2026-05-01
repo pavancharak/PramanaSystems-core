@@ -15,7 +15,7 @@ fs.mkdirSync(
 );
 
 fs.writeFileSync(
-  "./keys/bundle_signing_key",
+  "./dev-keys/bundle_signing_key",
 
   privateKey.export({
     format: "pem",
@@ -26,7 +26,7 @@ fs.writeFileSync(
 );
 
 fs.writeFileSync(
-  "./keys/bundle_signing_key.pub",
+  "./dev-keys/bundle_signing_key.pub",
 
   publicKey.export({
     format: "pem",
@@ -39,5 +39,6 @@ fs.writeFileSync(
 console.log(
   "Ed25519 governance keys generated."
 );
+
 
 

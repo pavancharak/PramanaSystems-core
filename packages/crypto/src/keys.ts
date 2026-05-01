@@ -4,12 +4,12 @@ import path from "path";
 
 const PRIVATE_KEY_PATH =
   path.resolve(
-    "./keys/bundle_signing_key"
+    "./dev-keys/bundle_signing_key"
   );
 
 const PUBLIC_KEY_PATH =
   path.resolve(
-    "./keys/bundle_signing_key.pub"
+    "./dev-keys/bundle_signing_key.pub"
   );
 
 export function loadPrivateKey(): string {
@@ -27,6 +27,7 @@ export function loadPublicKey(): string {
     "utf8"
   );
 }
+
 
 
 

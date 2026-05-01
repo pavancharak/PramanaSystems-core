@@ -2,255 +2,122 @@
 
 import fs from "node:fs";
 
-console.log("");
-console.log("PramanaSystems Verifier CLI");
-console.log("");
+import {
+  LocalVerifier
+} from "@pramanasystems/core";
 
-const command = process.argv[2];
+async function main() {
 
-switch (command) {
+  console.log("");
+  console.log("PramanaSystems Verifier CLI");
+  console.log("");
 
-  case "verify-attestation": {
-    const file = process.argv[3];
+  const publicKey =
+    fs.readFileSync(
+      "./dev-keys/bundle_signing_key.pub",
+      "utf8"
+    );
 
-    if (!file) {
-      console.log(
-        "Usage: pramanasystems-verifier verify-attestation <file>"
-      );
+  const verifier =
+    new LocalVerifier(publicKey);
 
-      process.exit(1);
-    }
+  const command = process.argv[2];
 
-    if (!fs.existsSync(file)) {
-      console.log("Attestation file not found.");
-      process.exit(1);
-    }
+  switch (command) {
 
-    try {
-      const content =
-        fs.readFileSync(file, "utf8");
+    case "verify-attestation": {
+      const file = process.argv[3];
 
-      const parsed =
-        JSON.parse(content);
-
-      console.log("");
-      console.log("ATTESTATION:");
-      console.log(parsed);
-
-      if (
-        !parsed.decision ||
-        !parsed.policyVersion
-      ) {
-        throw new Error(
-          "Invalid attestation structure."
+      if (!file) {
+        console.log(
+          "Usage: pramanasystems-verifier verify-attestation <file>"
         );
+
+        process.exit(1);
       }
 
-      console.log("");
-      console.log(
-        "Attestation verification succeeded."
-      );
-
-    } catch (err) {
-
-      console.log("");
-      console.log(
-        "Attestation verification failed."
-      );
-
-      console.log(
-        err instanceof Error
-          ? err.message
-          : String(err)
-      );
-
-      process.exit(1);
-    }
-
-    break;
-  }
-
-  case "verify-runtime": {
-    const file = process.argv[3];
-
-    if (!file) {
-      console.log(
-        "Usage: pramanasystems-verifier verify-runtime <file>"
-      );
-
-      process.exit(1);
-    }
-
-    if (!fs.existsSync(file)) {
-      console.log("Runtime manifest file not found.");
-      process.exit(1);
-    }
-
-    try {
-      const content =
-        fs.readFileSync(file, "utf8");
-
-      const parsed =
-        JSON.parse(content);
-
-      console.log("");
-      console.log("RUNTIME MANIFEST:");
-      console.log(parsed);
-
-      if (
-        !parsed.runtime ||
-        !parsed.version
-      ) {
-        throw new Error(
-          "Invalid runtime manifest."
-        );
+      if (!fs.existsSync(file)) {
+        console.log("Attestation file not found.");
+        process.exit(1);
       }
 
-      console.log("");
-      console.log(
-        "Runtime verification succeeded."
-      );
+      try {
+        const content =
+          fs.readFileSync(file, "utf8");
 
-    } catch (err) {
+        const parsed =
+          JSON.parse(content);
 
-      console.log("");
-      console.log(
-        "Runtime verification failed."
-      );
+        console.log("");
+        console.log("ATTESTATION:");
+        console.log(parsed);
 
-      console.log(
-        err instanceof Error
-          ? err.message
-          : String(err)
-      );
+        if (
+          !parsed.decision ||
+          !parsed.policyVersion ||
+          !parsed.signature
+        ) {
+          throw new Error(
+            "Invalid attestation structure."
+          );
+        }
 
-      process.exit(1);
-    }
+        if (
+          typeof parsed.signature !== "string"
+        ) {
+          throw new Error(
+            "Invalid attestation signature."
+          );
+        }
 
-    break;
-  }
+        const payload = {
+          decision: parsed.decision,
+          policyVersion: parsed.policyVersion,
+          timestamp: parsed.timestamp
+        };
 
-  case "verify-release": {
-    const file = process.argv[3];
+        const verified =
+          await verifier.verify(
+            JSON.stringify(payload),
+            parsed.signature
+          );
 
-    if (!file) {
-      console.log(
-        "Usage: pramanasystems-verifier verify-release <file>"
-      );
+        if (!verified) {
+          throw new Error(
+            "Cryptographic signature verification failed."
+          );
+        }
 
-      process.exit(1);
-    }
-
-    if (!fs.existsSync(file)) {
-      console.log("Release manifest file not found.");
-      process.exit(1);
-    }
-
-    try {
-      const content =
-        fs.readFileSync(file, "utf8");
-
-      const parsed =
-        JSON.parse(content);
-
-      console.log("");
-      console.log("RELEASE MANIFEST:");
-      console.log(parsed);
-
-      if (
-        !parsed.version ||
-        !parsed.artifacts
-      ) {
-        throw new Error(
-          "Invalid release manifest."
+        console.log("");
+        console.log(
+          "Cryptographic attestation verification succeeded."
         );
+
+      } catch (err) {
+
+        console.log("");
+        console.log(
+          "Attestation verification failed."
+        );
+
+        console.log(
+          err instanceof Error
+            ? err.message
+            : String(err)
+        );
+
+        process.exit(1);
       }
 
-      console.log("");
-      console.log(
-        "Release verification succeeded."
-      );
-
-    } catch (err) {
-
-      console.log("");
-      console.log(
-        "Release verification failed."
-      );
-
-      console.log(
-        err instanceof Error
-          ? err.message
-          : String(err)
-      );
-
-      process.exit(1);
+      break;
     }
 
-    break;
+    default:
+      console.log("Unknown command.");
   }
-
-  case "verify-compatibility": {
-  const file = process.argv[3];
-
-  if (!file) {
-    console.log(
-      "Usage: pramanasystems-verifier verify-compatibility <file>"
-    );
-
-    process.exit(1);
-  }
-
-  if (!fs.existsSync(file)) {
-    console.log("Compatibility manifest file not found.");
-    process.exit(1);
-  }
-
-  try {
-    const content =
-      fs.readFileSync(file, "utf8");
-
-    const parsed =
-      JSON.parse(content);
-
-    console.log("");
-    console.log("COMPATIBILITY MANIFEST:");
-    console.log(parsed);
-
-    if (
-      !parsed.runtimeVersion ||
-      !parsed.policyVersion ||
-      !parsed.compatibility
-    ) {
-      throw new Error(
-        "Invalid compatibility manifest."
-      );
-    }
-
-    console.log("");
-    console.log(
-      "Compatibility verification succeeded."
-    );
-
-  } catch (err) {
-
-    console.log("");
-    console.log(
-      "Compatibility verification failed."
-    );
-
-    console.log(
-      err instanceof Error
-        ? err.message
-        : String(err)
-    );
-
-    process.exit(1);
-  }
-
-  break;
 }
 
-  default:
-    console.log("Unknown command.");
-}
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

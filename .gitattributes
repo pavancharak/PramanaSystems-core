@@ -7,3 +7,4 @@
 *.sig binary
 *.pem binary
 *.pub text eol=lf
+

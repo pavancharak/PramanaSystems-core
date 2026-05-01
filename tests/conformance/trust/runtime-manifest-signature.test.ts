@@ -17,7 +17,7 @@ import {
 const signer =
   new LocalSigner(
     fs.readFileSync(
-      "./keys/bundle_signing_key",
+      "./dev-keys/bundle_signing_key",
       "utf8"
     )
   );
@@ -25,7 +25,7 @@ const signer =
 const verifier =
   new LocalVerifier(
     fs.readFileSync(
-      "./keys/bundle_signing_key.pub",
+      "./dev-keys/bundle_signing_key.pub",
       "utf8"
     )
   );
@@ -88,5 +88,6 @@ describe(
     );
   }
 );
+
 
 
