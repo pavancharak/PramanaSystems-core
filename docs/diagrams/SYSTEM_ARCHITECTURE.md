@@ -150,11 +150,12 @@ Find:
 
 Add this line underneath:
 
-\- docs/diagrams/SYSTEM\_ARCHITECTURE.md
+\- docs/diagrams/SYSTEM\_docs/architecture/ARCHITECTURE.md
 
 Then validate:
 
 npm run release:validate
+
 
 
 

@@ -70,7 +70,7 @@ Contributors should read:
 
 \- docs/README.md
 
-\- ARCHITECTURE.md
+\- docs/architecture/ARCHITECTURE.md
 
 \- docs/governance/CONFORMANCE\_MODEL.md
 
@@ -175,5 +175,6 @@ Governance infrastructure must remain independently verifiable without centraliz
 
 
 Operational simplicity is preferred over unnecessary abstraction complexity.
+
 
 

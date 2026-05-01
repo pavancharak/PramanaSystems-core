@@ -112,3 +112,4 @@ PramanaSystems exists to preserve deterministic governance trust independently o
 ```text
 Impact + obligation to prove = deterministic enforcement
 ```
+

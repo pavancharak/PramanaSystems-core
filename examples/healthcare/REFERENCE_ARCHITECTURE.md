@@ -280,7 +280,7 @@ Paste:
 
 
 
-\- `examples/healthcare/REFERENCE\_ARCHITECTURE.md`
+\- `examples/healthcare/REFERENCE\_docs/architecture/ARCHITECTURE.md`
 
 ``` id="7k5xqm"
 
@@ -301,6 +301,7 @@ This is strategically powerful because it transforms pramanasystems from:
 ```text id="9m5vwr"
 
 abstract governance infrastructure
+
 
 
 

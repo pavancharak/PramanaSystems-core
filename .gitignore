@@ -1,19 +1,23 @@
 node_modules/
 dist/
 coverage/
+.turbo/
+
 .vscode/
 .env
+
+*.log
+*.tgz
+*.tsbuildinfo
+
+*.sig.tmp
+*.audit.tmp
 
 PramanaSystems_bundle_key
 PramanaSystems_bundle_key.pub
 
 test-keys/PramanaSystems_test_key
-runtime-audit/*.jsonl
-trust/*.key               
 
-*.sig.tmp
-*.audit.tmp
-*.tgz
-.turbo/
-dist/
-node_modules/
+runtime-audit/*.jsonl
+
+trust/*.key

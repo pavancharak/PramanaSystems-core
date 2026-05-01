@@ -132,7 +132,7 @@ Primary specifications:
 
 |---|---|
 
-| `ARCHITECTURE.md` | Core deterministic execution architecture |
+| `docs/architecture/ARCHITECTURE.md` | Core deterministic execution architecture |
 
 | `SEMVER\_AND\_COMPATIBILITY.md` | Deterministic compatibility guarantees |
 
@@ -488,7 +488,7 @@ The recommended reading order for understanding the governance model is:
 
 ```text
 
-ARCHITECTURE.md
+docs/architecture/ARCHITECTURE.md
 
 &#x20;   ↓
 
@@ -637,6 +637,7 @@ The specification ecosystem is treated as deterministic governance infrastructur
 
 
 Semantic consistency, invariant preservation, and explicit governance interpretation are considered architectural requirements rather than documentation preferences.
+
 
 
 

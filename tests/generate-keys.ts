@@ -40,3 +40,4 @@ console.log(
   "Ed25519 governance keys generated."
 );
 
+

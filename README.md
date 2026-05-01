@@ -122,14 +122,15 @@ npm run release:validate
 | `docs/verification.md` | Independent verification architecture |
 | `examples/quickstart` | Minimal runtime SDK example |
 | `examples/decision-flow` | Deterministic governance lifecycle overview |
-| `ARCHITECTURE.md` | Core deterministic governance architecture |
-| `TRUST_MODEL.md` | Governance trust assumptions |
-| `THREAT_MODEL.md` | Security and adversarial analysis |
-| `PORTABILITY_GUARANTEES.md` | Runtime portability guarantees |
-| `RELEASE_VERIFICATION.md` | Reproducible release validation |
+| `docs/architecture/ARCHITECTURE.md` | Core deterministic governance architecture |
+| `docs/trust/TRUST_MODEL.md` | Governance trust assumptions |
+| `docs/trust/THREAT_MODEL.md` | Security and adversarial analysis |
+| `docs/architecture/PORTABILITY_GUARANTEES.md` | Runtime portability guarantees |
+| `docs/verification/RELEASE_VERIFICATION.md` | Reproducible release validation |
 
 ## License
 
 Apache-2.0
+
 
 

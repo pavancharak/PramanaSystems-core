@@ -247,7 +247,7 @@ docs/
 
 ## Core Architecture
 
-- `ARCHITECTURE.md`
+- `docs/architecture/ARCHITECTURE.md`
 - `docs/runtime/RUNTIME_CERTIFICATION.md`
 - `docs/runtime/EXECUTION_MODEL.md`
 
@@ -264,11 +264,11 @@ docs/
 
 ## Trust & Verification
 
-- `docs/trust/TRUST_MODEL.md`
-- `docs/trust/THREAT_MODEL.md`
+- `docs/trust/docs/trust/TRUST_MODEL.md`
+- `docs/trust/docs/trust/THREAT_MODEL.md`
 - `docs/trust/ATTESTATION_LINEAGE.md`
 - `docs/verification/VERIFICATION_MODEL.md`
-- `docs/verification/RELEASE_VERIFICATION.md`
+- `docs/verification/docs/verification/RELEASE_VERIFICATION.md`
 - `docs/verification/INDEPENDENT_VERIFIER.md`
 - `docs/verification/END_TO_END_VERIFICATION.md`
 
@@ -324,3 +324,4 @@ npm run release:validate
 # Governance Principle
 
 pramanasystems provides deterministic governance infrastructure for enforceable decisions requiring independently verifiable trust.
+
