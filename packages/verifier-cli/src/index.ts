@@ -130,13 +130,126 @@ switch (command) {
     break;
   }
 
-  case "verify-release":
-    console.log("Release verification placeholder.");
-    break;
+  case "verify-release": {
+    const file = process.argv[3];
 
-  case "verify-compatibility":
-    console.log("Compatibility verification placeholder.");
+    if (!file) {
+      console.log(
+        "Usage: pramanasystems-verifier verify-release <file>"
+      );
+
+      process.exit(1);
+    }
+
+    if (!fs.existsSync(file)) {
+      console.log("Release manifest file not found.");
+      process.exit(1);
+    }
+
+    try {
+      const content =
+        fs.readFileSync(file, "utf8");
+
+      const parsed =
+        JSON.parse(content);
+
+      console.log("");
+      console.log("RELEASE MANIFEST:");
+      console.log(parsed);
+
+      if (
+        !parsed.version ||
+        !parsed.artifacts
+      ) {
+        throw new Error(
+          "Invalid release manifest."
+        );
+      }
+
+      console.log("");
+      console.log(
+        "Release verification succeeded."
+      );
+
+    } catch (err) {
+
+      console.log("");
+      console.log(
+        "Release verification failed."
+      );
+
+      console.log(
+        err instanceof Error
+          ? err.message
+          : String(err)
+      );
+
+      process.exit(1);
+    }
+
     break;
+  }
+
+  case "verify-compatibility": {
+  const file = process.argv[3];
+
+  if (!file) {
+    console.log(
+      "Usage: pramanasystems-verifier verify-compatibility <file>"
+    );
+
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(file)) {
+    console.log("Compatibility manifest file not found.");
+    process.exit(1);
+  }
+
+  try {
+    const content =
+      fs.readFileSync(file, "utf8");
+
+    const parsed =
+      JSON.parse(content);
+
+    console.log("");
+    console.log("COMPATIBILITY MANIFEST:");
+    console.log(parsed);
+
+    if (
+      !parsed.runtimeVersion ||
+      !parsed.policyVersion ||
+      !parsed.compatibility
+    ) {
+      throw new Error(
+        "Invalid compatibility manifest."
+      );
+    }
+
+    console.log("");
+    console.log(
+      "Compatibility verification succeeded."
+    );
+
+  } catch (err) {
+
+    console.log("");
+    console.log(
+      "Compatibility verification failed."
+    );
+
+    console.log(
+      err instanceof Error
+        ? err.message
+        : String(err)
+    );
+
+    process.exit(1);
+  }
+
+  break;
+}
 
   default:
     console.log("Unknown command.");
