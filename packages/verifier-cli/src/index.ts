@@ -112,6 +112,180 @@ async function main() {
       break;
     }
 
+    case "verify-release": {
+      const file = process.argv[3];
+
+      if (!file) {
+        console.log(
+          "Usage: pramanasystems-verifier verify-release <file>"
+        );
+
+        process.exit(1);
+      }
+
+      if (!fs.existsSync(file)) {
+        console.log("Release manifest file not found.");
+        process.exit(1);
+      }
+
+      try {
+        const content =
+          fs.readFileSync(file, "utf8");
+
+        const parsed =
+          JSON.parse(content);
+
+        console.log("");
+        console.log("RELEASE:");
+        console.log(parsed);
+
+        if (
+          !parsed.version ||
+          !parsed.artifacts ||
+          !parsed.signature
+        ) {
+          throw new Error(
+            "Invalid release manifest."
+          );
+        }
+
+        if (
+          typeof parsed.signature !== "string"
+        ) {
+          throw new Error(
+            "Invalid release signature."
+          );
+        }
+
+        const payload = {
+          version: parsed.version,
+          artifacts: parsed.artifacts
+        };
+
+        const verified =
+          await verifier.verify(
+            JSON.stringify(payload),
+            parsed.signature
+          );
+
+        if (!verified) {
+          throw new Error(
+            "Cryptographic release verification failed."
+          );
+        }
+
+        console.log("");
+        console.log(
+          "Cryptographic release verification succeeded."
+        );
+
+      } catch (err) {
+
+        console.log("");
+        console.log(
+          "Release verification failed."
+        );
+
+        console.log(
+          err instanceof Error
+            ? err.message
+            : String(err)
+        );
+
+        process.exit(1);
+      }
+
+      break;
+    }
+
+    case "verify-runtime": {
+      const file = process.argv[3];
+
+      if (!file) {
+        console.log(
+          "Usage: pramanasystems-verifier verify-runtime <file>"
+        );
+
+        process.exit(1);
+      }
+
+      if (!fs.existsSync(file)) {
+        console.log("Runtime manifest file not found.");
+        process.exit(1);
+      }
+
+      try {
+        const content =
+          fs.readFileSync(file, "utf8");
+
+        const parsed =
+          JSON.parse(content);
+
+        console.log("");
+        console.log("RUNTIME:");
+        console.log(parsed);
+
+        if (
+          !parsed.runtime ||
+          !parsed.version ||
+          !parsed.compatibility ||
+          !parsed.signature
+        ) {
+          throw new Error(
+            "Invalid runtime manifest."
+          );
+        }
+
+        if (
+          typeof parsed.signature !== "string"
+        ) {
+          throw new Error(
+            "Invalid runtime signature."
+          );
+        }
+
+        const payload = {
+          runtime: parsed.runtime,
+          version: parsed.version,
+          compatibility: parsed.compatibility
+        };
+
+        const verified =
+          await verifier.verify(
+            JSON.stringify(payload),
+            parsed.signature
+          );
+
+        if (!verified) {
+          throw new Error(
+            "Cryptographic runtime verification failed."
+          );
+        }
+
+        console.log("");
+        console.log(
+          "Cryptographic runtime verification succeeded."
+        );
+
+      } catch (err) {
+
+        console.log("");
+        console.log(
+          "Runtime verification failed."
+        );
+
+        console.log(
+          err instanceof Error
+            ? err.message
+            : String(err)
+        );
+
+        process.exit(1);
+      }
+
+      break;
+    }
+
     default:
       console.log("Unknown command.");
   }

@@ -1,0 +1,9 @@
+{
+  "version": "1.0.3",
+  "artifacts": [
+    "@pramanasystems/core",
+    "@pramanasystems/execution",
+    "@pramanasystems/verifier"
+  ],
+  "signature": "WgF99pYbJvx7z4ZbZZnfZWCPL1B5DsOYtT3cV+TqJgbFeXG9EBqgO/QXIIFFZoOtbZ1akRTQxDQbGLXDt1AADA=="
+}
