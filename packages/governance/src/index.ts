@@ -5,6 +5,7 @@ export * from "./upgrade-policy";
 export * from "./validate-policy";
 export * from "./runtime-requirements";
 export * from "./execution-requirements";
+export * from "./define-policy";
 
 
 

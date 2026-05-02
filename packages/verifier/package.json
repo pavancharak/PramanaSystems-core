@@ -1,6 +1,6 @@
 {
     "name": "@pramanasystems/verifier",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "private": false,
     "type": "module",
     "scripts": {
@@ -17,9 +17,9 @@
     ],
     "sideEffects": false,
     "dependencies": {
-        "@pramanasystems/crypto": "^1.0.3",
-        "@pramanasystems/execution": "^1.0.3",
-        "@pramanasystems/governance": "^1.0.3"
+        "@pramanasystems/crypto": "^1.0.4",
+        "@pramanasystems/execution": "^1.0.4",
+        "@pramanasystems/governance": "^1.0.4"
     },
     "description": "Independent governance verification infrastructure for deterministic PramanaSystems workflows.",
     "license": "Apache-2.0",

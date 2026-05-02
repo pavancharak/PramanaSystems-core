@@ -1,6 +1,6 @@
 {
     "name": "@pramanasystems/core",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "private": false,
     "type": "module",
     "scripts": {
@@ -17,11 +17,11 @@
     ],
     "sideEffects": false,
     "dependencies": {
-        "@pramanasystems/bundle": "^1.0.3",
-        "@pramanasystems/crypto": "^1.0.3",
-        "@pramanasystems/execution": "^1.0.3",
-        "@pramanasystems/governance": "^1.0.3",
-        "@pramanasystems/verifier": "^1.0.3"
+        "@pramanasystems/bundle": "^1.0.4",
+        "@pramanasystems/crypto": "^1.0.4",
+        "@pramanasystems/execution": "^1.0.4",
+        "@pramanasystems/governance": "^1.0.4",
+        "@pramanasystems/verifier": "^1.0.4"
     },
     "description": "Public orchestration and SDK surface for PramanaSystems deterministic governance infrastructure.",
     "license": "Apache-2.0",

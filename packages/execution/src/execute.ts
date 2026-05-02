@@ -14,6 +14,14 @@ import type {
   ReplayStore,
 } from "./replay-store-interface";
 
+import type {
+  Signer,
+} from "./signer-interface";
+
+import type {
+  Verifier,
+} from "./verifier-interface";
+
 import {
   appendAuditRecord,
 } from "./audit";
@@ -33,6 +41,18 @@ import {
 import {
   verifyExecutionToken,
 } from "./verify-token";
+
+import {
+  issueExecutionToken,
+} from "./issue-token";
+
+import {
+  signExecutionToken,
+} from "./sign-token";
+
+import {
+  getRuntimeManifest,
+} from "./runtime-manifest";
 
 function getMissingExecutionRequirements(
   capabilities: readonly string[],
@@ -284,6 +304,86 @@ export function executeDecision(
   };
 
   return attestation;
+}
+
+export function executeSimple(
+  input: {
+    policyId: string;
+    policyVersion: string;
+    decisionType: string;
+    signalsHash: string;
+  },
+  signer: Signer,
+  verifier: Verifier,
+  store?: ReplayStore
+): ExecutionAttestation {
+
+  const token =
+    issueExecutionToken(
+      input.policyId,
+      input.policyVersion,
+      input.decisionType,
+      input.signalsHash
+    );
+
+  const tokenSignature =
+    signExecutionToken(
+      token,
+      signer
+    );
+
+  const runtimeManifest =
+    getRuntimeManifest();
+
+  const runtimeRequirements = {
+    required_capabilities: [],
+
+    supported_runtime_versions:
+      ["1.0.0"],
+
+    supported_schema_versions:
+      ["1.0.0"],
+  };
+
+  const executionRequirements = {
+    replay_protection_required:
+      false,
+
+    attestation_required:
+      false,
+
+    audit_chain_required:
+      false,
+
+    independent_verification_required:
+      false,
+  };
+
+  const context: ExecutionContext = {
+    token,
+
+    token_signature:
+      tokenSignature,
+
+    signer,
+
+    verifier,
+
+    runtime_manifest:
+      runtimeManifest,
+
+    runtime_requirements:
+      runtimeRequirements,
+
+    execution_requirements:
+      executionRequirements,
+  };
+
+  return executeDecision(
+    context,
+    store ||
+      defaultReplayStore
+  );
 }
 
 

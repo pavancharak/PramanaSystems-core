@@ -8,6 +8,22 @@ export interface BundleGenerationResult {
   bundle_hash: string;
 }
 
+export interface PolicyRule {
+  id: string;
+
+  condition: string;
+
+  action: string;
+}
+
+export interface PolicyDefinition {
+  id: string;
+
+  version: string;
+
+  rules: PolicyRule[];
+}
+
 
 
 

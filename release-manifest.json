@@ -3,39 +3,39 @@
   "artifacts": [
     {
       "package": "@pramanasystems/bundle",
-      "version": "1.0.3",
-      "artifact": "pramanasystems-bundle-1.0.3.tgz",
-      "sha256": "4ce2feed2b109c5565b52d4d2151493c2d0fa99bb341f59721b628c1ae98313a"
+      "version": "1.0.4",
+      "artifact": "pramanasystems-bundle-1.0.4.tgz",
+      "sha256": "09fd7eb7d411eab1356ee2f811054f567d5ce205927dab7c26fa96e461cde3fc"
     },
     {
       "package": "@pramanasystems/crypto",
-      "version": "1.0.3",
-      "artifact": "pramanasystems-crypto-1.0.3.tgz",
-      "sha256": "312494e60a6262625fffda86073e7022948b24673176dd51d621ee4b649a2ae0"
+      "version": "1.0.4",
+      "artifact": "pramanasystems-crypto-1.0.4.tgz",
+      "sha256": "89ad72da7fa8dc33afe0431dc468c318d4ac88754ceeed68e74943673cc974ff"
     },
     {
       "package": "@pramanasystems/governance",
-      "version": "1.0.3",
-      "artifact": "pramanasystems-governance-1.0.3.tgz",
-      "sha256": "a47a2a8169b589b466670b7b459b8fa951232bd4163bb686a18e622b6b3eefd1"
+      "version": "1.0.4",
+      "artifact": "pramanasystems-governance-1.0.4.tgz",
+      "sha256": "7481f172c915c1f3e75ed2117c921d182e2aba9439a8f519de3cd393f9d1a926"
     },
     {
       "package": "@pramanasystems/execution",
-      "version": "1.0.3",
-      "artifact": "pramanasystems-execution-1.0.3.tgz",
-      "sha256": "f82095cd7a60da6e52dff1944a9a62df49754020463aa529cc8a5848e0b09008"
+      "version": "1.0.4",
+      "artifact": "pramanasystems-execution-1.0.4.tgz",
+      "sha256": "30afb5445d564add9086c2b48d3911a950f94f3c9c26e1d8a50758ab92f314a2"
     },
     {
       "package": "@pramanasystems/verifier",
-      "version": "1.0.3",
-      "artifact": "pramanasystems-verifier-1.0.3.tgz",
-      "sha256": "016b162f2f22b7a125ed7b28a0436eb43c7ab981df0dd38d9a84e3ca42ad1eca"
+      "version": "1.0.4",
+      "artifact": "pramanasystems-verifier-1.0.4.tgz",
+      "sha256": "6d6e14f058f8a3ee6fa5762907d4bc1fb113f75b4927855cb6b46cad33888b6b"
     },
     {
       "package": "@pramanasystems/core",
-      "version": "1.0.3",
-      "artifact": "pramanasystems-core-1.0.3.tgz",
-      "sha256": "59b60aed73e0894cb9e242ea25e7d659358347d787afbfe2fc9073c9ec51bc3f"
+      "version": "1.0.4",
+      "artifact": "pramanasystems-core-1.0.4.tgz",
+      "sha256": "b3ecb1c8fdee9f5e9a8119604d2d930fcf0f1499761f209a7a14590df68c395f"
     },
     {
       "package": "@pramanasystems/verifier-cli",

@@ -48,6 +48,29 @@ export function verifySignature(
   );
 }
 
+export function verifyPayloadSignature(
+  payload: string,
+  signature: string,
+  publicKey: string
+): boolean {
+
+  return crypto.verify(
+    null,
+
+    Buffer.from(
+      payload,
+      "utf8"
+    ),
+
+    publicKey,
+
+    Buffer.from(
+      signature,
+      "base64"
+    )
+  );
+}
+
 
 
 
