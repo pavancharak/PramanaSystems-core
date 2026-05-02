@@ -72,6 +72,7 @@
     "workflow:dag": "tsx ./scripts/execute-governance-dag.ts",
 
     "trust:generate": "tsx ./scripts/generate-trust-root.ts",
+   "check:boundaries:core": "tsx ./scripts/check-core-boundaries.ts",
 
     "trust:verify": "tsx ./scripts/verify-release-with-trust-root.ts",
 
