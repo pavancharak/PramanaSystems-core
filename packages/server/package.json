@@ -1,6 +1,6 @@
 {
   "name": "@pramanasystems/server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": false,
   "type": "module",
   "description": "Fastify REST API server for PramanaSystems governance runtime.",
