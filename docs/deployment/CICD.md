@@ -37,6 +37,36 @@ Required by `release.yml` to authenticate with the npm registry.
 
 The token needs publish access to the `@pramanasystems` npm scope. If the org scope is protected, ensure the token belongs to an account with publish rights.
 
+### `BUNDLE_SIGNING_KEY`
+
+Required by **both `ci.yml` and `release.yml`** to restore the Ed25519 private key used to sign policy bundles. Tests verify signatures against bundles already committed to the repository, so CI must use the exact same key — a freshly-generated ephemeral key will not match.
+
+**Value:** the full PEM content of `dev-keys/bundle_signing_key` (PKCS#8 format, begins `-----BEGIN PRIVATE KEY-----`).
+
+**Add to the repository:**
+
+1. Open **Settings → Secrets and variables → Actions → New repository secret**.
+2. Name: `BUNDLE_SIGNING_KEY`
+3. Value: paste the full contents of `dev-keys/bundle_signing_key` (including the header/footer lines).
+4. Click **Add secret**.
+
+> **Security note:** `dev-keys/bundle_signing_key` is intentionally excluded from git (`.gitignore`). Never commit the raw key file. Store the PEM value only in this secret.
+
+### `BUNDLE_SIGNING_KEY_PUB`
+
+Companion public key, also required by both CI workflows.
+
+**Value:** the full PEM content of `dev-keys/bundle_signing_key.pub` (SPKI format, begins `-----BEGIN PUBLIC KEY-----`).
+
+**Add to the repository:**
+
+1. Open **Settings → Secrets and variables → Actions → New repository secret**.
+2. Name: `BUNDLE_SIGNING_KEY_PUB`
+3. Value: paste the full contents of `dev-keys/bundle_signing_key.pub`.
+4. Click **Add secret**.
+
+---
+
 ### `GITHUB_TOKEN`
 
 Automatically provided by GitHub Actions — no setup required. `docker.yml` uses it to authenticate with the GitHub Container Registry (GHCR). The workflow requests `permissions: packages: write` so the token can push images.
@@ -140,6 +170,15 @@ npm view @pramanasystems/server version
 2. Update the `NPM_TOKEN` secret in GitHub repository settings.
 3. Revoke the old token on npmjs.com.
 
+### Rotate BUNDLE_SIGNING_KEY / BUNDLE_SIGNING_KEY_PUB
+
+Rotating the bundle signing key requires re-signing all committed policy bundles with the new key, otherwise CI verification tests will fail.
+
+1. Generate a new Ed25519 key pair locally.
+2. Re-sign all policy bundles in the repository.
+3. Update `BUNDLE_SIGNING_KEY` and `BUNDLE_SIGNING_KEY_PUB` secrets in GitHub repository settings.
+4. Replace `dev-keys/bundle_signing_key` and `dev-keys/bundle_signing_key.pub` on each developer's machine.
+
 ### GITHUB_TOKEN rotation
 
 Not required — GitHub rotates it automatically per workflow run.
@@ -156,3 +195,4 @@ Not required — GitHub rotates it automatically per workflow run.
 | Docker push fails with `denied: permission_denied` | `packages: write` permission missing | Confirm the workflow has `permissions: packages: write` |
 | Docker image name rejected (uppercase) | `github.repository` contains uppercase | The `Lowercase repository name` step handles this; check it ran |
 | CI cancelled unexpectedly | Concurrency group cancelled by a newer push | Expected behaviour — only the latest push on a branch runs |
+| Tests fail with signature verification error | `BUNDLE_SIGNING_KEY` / `BUNDLE_SIGNING_KEY_PUB` secrets missing or wrong | Add both secrets (see **Required secrets** above) — the key must match the one used to sign committed policy bundles |

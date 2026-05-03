@@ -29,18 +29,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate dev keys for tests
+      - name: Restore dev keys from secrets
+        env:
+          BUNDLE_SIGNING_KEY: ${{ secrets.BUNDLE_SIGNING_KEY }}
+          BUNDLE_SIGNING_KEY_PUB: ${{ secrets.BUNDLE_SIGNING_KEY_PUB }}
         run: |
           mkdir -p dev-keys
-          node -e "
-            const { generateKeyPairSync } = require('crypto');
-            const { privateKey, publicKey } = generateKeyPairSync('ed25519', {
-              privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
-              publicKeyEncoding: { type: 'spki', format: 'pem' }
-            });
-            require('fs').writeFileSync('dev-keys/bundle_signing_key', privateKey);
-            require('fs').writeFileSync('dev-keys/bundle_signing_key.pub', publicKey);
-          "
+          echo "$BUNDLE_SIGNING_KEY" > dev-keys/bundle_signing_key
+          echo "$BUNDLE_SIGNING_KEY_PUB" > dev-keys/bundle_signing_key.pub
 
       # release:validate runs: build → check → pack:packages →
       # release:manifest → release:attest → release:reproducibility →
