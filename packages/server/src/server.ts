@@ -23,7 +23,12 @@ import { createAuditMiddleware } from "./middleware/audit.js";
  *   dev-keys on disk, or an ephemeral Ed25519 key pair in that order.
  * - Set `PRAMANA_API_KEY` to enable authentication; omit it for dev mode.
  */
-export function createServer(): FastifyInstance {
+export interface ServerInstance {
+  app: FastifyInstance;
+  auditDb?: AuditDb;
+}
+
+export function createServer(): ServerInstance {
   const app = Fastify({
     bodyLimit: 1048576, // 1 MB global default
     logger: {
@@ -101,5 +106,5 @@ export function createServer(): FastifyInstance {
 
   registerRoutes(app, { signer, verifier, runtimeManifest, auditDb });
 
-  return app;
+  return { app, auditDb };
 }

@@ -219,6 +219,26 @@ When a rate limit is exceeded the server responds with `429 Too Many Requests`:
 
 ---
 
+## Graceful shutdown
+
+The server handles `SIGTERM` and `SIGINT` (Ctrl-C) with a clean, ordered shutdown:
+
+1. Stops accepting new connections (`app.close()`).
+2. Waits for in-flight requests to complete.
+3. Closes the PostgreSQL audit pool (`auditDb.disconnect()`), if configured.
+4. Logs `"Server closed cleanly"` and exits `0`.
+
+If shutdown takes longer than **10 seconds** the process force-exits with code `1` and logs `"Graceful shutdown timed out, forcing exit"`. The timeout is `unref()`-ed so it does not extend the process lifetime on its own.
+
+```
+SIGTERM/SIGINT
+  └─ app.close()         — drain in-flight HTTP requests
+  └─ auditDb.disconnect() — close postgres pool (if configured)
+  └─ process.exit(0)
+```
+
+---
+
 ## Logging
 
 The server uses [pino](https://getpino.io/) structured JSON logging via Fastify.

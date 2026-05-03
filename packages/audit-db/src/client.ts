@@ -27,6 +27,10 @@ export class AuditDb {
     await this.pool.query("SELECT 1");
   }
 
+  async disconnect(): Promise<void> {
+    await this.pool.end();
+  }
+
   async migrate(): Promise<void> {
     const client: PoolClient = await this.pool.connect();
     try {
