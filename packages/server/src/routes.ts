@@ -6,11 +6,8 @@ import type {
 
 import type {} from "@fastify/swagger";
 
-import type {
-  Signer,
-  Verifier,
-  RuntimeManifest,
-} from "@pramanasystems/execution";
+import { getRuntimeManifest, type Signer, type Verifier, type RuntimeManifest } from "@pramanasystems/execution";
+import { existsSync } from "node:fs";
 
 import type { AuditDb } from "@pramanasystems/audit-db";
 
@@ -30,6 +27,23 @@ const S_NOT_IMPLEMENTED = {
   ...S_ERROR,
   properties: { error: { type: "string", enum: ["Not implemented"] } },
 };
+
+// ── Health check helpers ──────────────────────────────────────────────────────
+
+function checkRuntime(): "ok" | "error" {
+  try { getRuntimeManifest(); return "ok"; } catch { return "error"; }
+}
+
+function checkSigningKey(): "ok" | "unconfigured" {
+  if (process.env.PRAMANA_PRIVATE_KEY) return "ok";
+  if (existsSync("./dev-keys/bundle_signing_key")) return "ok";
+  return "unconfigured";
+}
+
+async function checkAuditDb(db: AuditDb | undefined): Promise<"ok" | "unavailable" | "unconfigured"> {
+  if (!db) return "unconfigured";
+  try { await db.ping(); return "ok"; } catch { return "unavailable"; }
+}
 
 // ── Deps ──────────────────────────────────────────────────────────────────────
 
@@ -83,22 +97,40 @@ export function registerRoutes(
       summary: "Health check",
       response: {
         200: {
-          description: "Server is healthy",
+          description: "Server health status with per-subsystem checks",
           type: "object",
           properties: {
-            status:    { type: "string", enum: ["ok"] },
+            status:    { type: "string", enum: ["ok", "degraded"] },
             version:   { type: "string" },
             timestamp: { type: "string", format: "date-time" },
+            checks: {
+              type: "object",
+              properties: {
+                runtime_manifest: { type: "string", enum: ["ok", "error"] },
+                signing_key:      { type: "string", enum: ["ok", "unconfigured"] },
+                audit_db:         { type: "string", enum: ["ok", "unavailable", "unconfigured"] },
+              },
+              required: ["runtime_manifest", "signing_key", "audit_db"],
+            },
           },
-          required: ["status", "version", "timestamp"],
+          required: ["status", "version", "timestamp", "checks"],
         },
       },
     },
-  }, async () => ({
-    status: "ok" as const,
-    version: "1.0.0",
-    timestamp: new Date().toISOString(),
-  }));
+  }, async () => {
+    const checks = {
+      runtime_manifest: checkRuntime(),
+      signing_key:      checkSigningKey(),
+      audit_db:         await checkAuditDb(auditDb),
+    };
+    const degraded = Object.values(checks).some(v => v === "error" || v === "unavailable");
+    return {
+      status:    degraded ? "degraded" as const : "ok" as const,
+      version:   "1.2.3",
+      timestamp: new Date().toISOString(),
+      checks,
+    };
+  });
 
   // POST /execute ────────────────────────────────────────────────────────────
 

@@ -31,17 +31,18 @@
         ],
         "responses": {
           "200": {
-            "description": "Server is healthy",
+            "description": "Server health status with per-subsystem checks",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Server is healthy",
+                  "description": "Server health status with per-subsystem checks",
                   "type": "object",
                   "properties": {
                     "status": {
                       "type": "string",
                       "enum": [
-                        "ok"
+                        "ok",
+                        "degraded"
                       ]
                     },
                     "version": {
@@ -50,12 +51,45 @@
                     "timestamp": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "runtime_manifest": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "error"
+                          ]
+                        },
+                        "signing_key": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "unconfigured"
+                          ]
+                        },
+                        "audit_db": {
+                          "type": "string",
+                          "enum": [
+                            "ok",
+                            "unavailable",
+                            "unconfigured"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "runtime_manifest",
+                        "signing_key",
+                        "audit_db"
+                      ]
                     }
                   },
                   "required": [
                     "status",
                     "version",
-                    "timestamp"
+                    "timestamp",
+                    "checks"
                   ]
                 }
               }

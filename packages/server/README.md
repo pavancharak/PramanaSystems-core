@@ -55,7 +55,7 @@ When `PRAMANA_PRIVATE_KEY` and `PRAMANA_PUBLIC_KEY` are absent, the server gener
 
 ### `GET /health`
 
-Returns runtime status and version.
+Returns runtime status, version, and per-subsystem health checks.
 
 ```bash
 curl http://localhost:3000/health
@@ -64,10 +64,25 @@ curl http://localhost:3000/health
 ```json
 {
   "status": "ok",
-  "version": "1.0.0",
-  "timestamp": "2025-05-02T10:00:00.000Z"
+  "version": "1.2.3",
+  "timestamp": "2026-05-03T10:00:00.000Z",
+  "checks": {
+    "runtime_manifest": "ok",
+    "signing_key": "ok",
+    "audit_db": "unconfigured"
+  }
 }
 ```
+
+**`status`** is `"ok"` when all checks are `"ok"` or `"unconfigured"`. It is `"degraded"` if any check is `"error"` or `"unavailable"`. The HTTP status code is always `200` — callers decide how to act on a degraded response.
+
+**Check values:**
+
+| Check | Values | Meaning |
+|---|---|---|
+| `runtime_manifest` | `ok` / `error` | Whether `getRuntimeManifest()` succeeds |
+| `signing_key` | `ok` / `unconfigured` | `PRAMANA_PRIVATE_KEY` env var set, or dev key on disk |
+| `audit_db` | `ok` / `unavailable` / `unconfigured` | DB reachable / unreachable / `AUDIT_DATABASE_URL` not set |
 
 ---
 

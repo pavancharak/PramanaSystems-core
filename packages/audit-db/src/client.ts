@@ -23,6 +23,10 @@ export class AuditDb {
     this.pool = new Pool({ connectionString });
   }
 
+  async ping(): Promise<void> {
+    await this.pool.query("SELECT 1");
+  }
+
   async migrate(): Promise<void> {
     const client: PoolClient = await this.pool.connect();
     try {
