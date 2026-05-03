@@ -155,6 +155,43 @@ These endpoints are defined in the OpenAPI spec and will be implemented in futur
 
 ---
 
+## Rate limits
+
+All routes are rate-limited per API key (when `PRAMANA_API_KEY` is set) or per client IP (in dev mode).
+
+| Route | Limit |
+|---|---|
+| `POST /execute` | 100 req/min |
+| `POST /verify` | 200 req/min |
+| `GET /audit/*` | 60 req/min |
+| `GET /health` | 300 req/min |
+| `GET /runtime/*` | 60 req/min |
+| `POST /evaluate` | 60 req/min |
+| `POST /simulate` | 60 req/min |
+
+When authenticated, the rate limit key is `sha256(PRAMANA_API_KEY)`. In dev mode (no `PRAMANA_API_KEY`), the key falls back to `X-Forwarded-For` → `X-Real-IP` → socket IP.
+
+Every response includes rate limit headers:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 99
+X-RateLimit-Reset: 1714640460
+```
+
+When a limit is exceeded the server responds with `429 Too Many Requests`:
+
+```json
+{
+  "error": "Rate limit exceeded",
+  "limit": 100,
+  "remaining": 0,
+  "reset": 1714640460
+}
+```
+
+---
+
 ## Authentication
 
 When `PRAMANA_API_KEY` is set, all requests must include:

@@ -1,4 +1,6 @@
 import Fastify, { type FastifyInstance } from "fastify";
+import { createHash } from "node:crypto";
+import rateLimit from "@fastify/rate-limit";
 
 import { signer, verifier, runtimeManifest } from "./runtime.js";
 import { authHook } from "./auth.js";
@@ -36,6 +38,31 @@ export function createServer(): FastifyInstance {
   }
 
   app.addHook("preHandler", authHook);
+
+  // Precompute API key hash once at startup — used as the per-key rate limit bucket
+  const apiKeyHash = process.env.PRAMANA_API_KEY
+    ? createHash("sha256").update(process.env.PRAMANA_API_KEY).digest("hex")
+    : null;
+
+  app.register(rateLimit, {
+    keyGenerator(req) {
+      if (apiKeyHash) return apiKeyHash;
+      const forwarded = req.headers["x-forwarded-for"];
+      const forwardedStr = Array.isArray(forwarded) ? forwarded[0] : forwarded;
+      const forwardedIp = forwardedStr?.split(",")[0]?.trim();
+      const realIp = req.headers["x-real-ip"];
+      const realIpStr = Array.isArray(realIp) ? realIp[0] : realIp;
+      return forwardedIp ?? realIpStr ?? req.ip;
+    },
+    errorResponseBuilder(_req, context) {
+      return {
+        error: "Rate limit exceeded",
+        limit: context.max,
+        remaining: 0,
+        reset: Math.floor(Date.now() / 1000) + Math.ceil(context.ttl / 1000),
+      };
+    },
+  });
 
   registerRoutes(app, { signer, verifier, runtimeManifest, auditDb });
 

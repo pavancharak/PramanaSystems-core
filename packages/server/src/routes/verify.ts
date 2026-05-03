@@ -56,6 +56,17 @@ const S_ERROR = {
   required: ["error"],
 };
 
+const S_RATE_LIMIT_ERROR = {
+  type: "object",
+  properties: {
+    error:     { type: "string" },
+    limit:     { type: "integer" },
+    remaining: { type: "integer" },
+    reset:     { type: "integer", description: "Unix timestamp when the rate limit resets" },
+  },
+  required: ["error", "limit", "remaining", "reset"],
+};
+
 export interface VerifyRouteDeps {
   verifier: Verifier;
   runtimeManifest: RuntimeManifest;
@@ -69,6 +80,7 @@ export function registerVerifyRoute(
   const { verifier, runtimeManifest, auditDb } = deps;
 
   app.post<{ Body: ExecutionAttestation }>("/verify", {
+    config: { rateLimit: { max: 200, timeWindow: "1 minute" } },
     schema: {
       tags: ["Verification"],
       summary: "Verify an execution attestation",
@@ -84,6 +96,7 @@ export function registerVerifyRoute(
         200:  { description: "Verification result with per-check breakdown", ...S_VERIFICATION_RESULT },
         400:  { description: "Malformed attestation body", ...S_ERROR },
         422:  { description: "Verification threw an unexpected error", ...S_ERROR },
+        429:  { description: "Rate limit exceeded", ...S_RATE_LIMIT_ERROR },
       },
     },
   }, async (

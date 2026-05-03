@@ -24,6 +24,7 @@ export function registerAuditRoutes(
       to?: string;
     };
   }>("/audit/decisions", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Audit"],
       summary: "Decision timeline",
@@ -63,6 +64,7 @@ export function registerAuditRoutes(
 
   // GET /audit/decisions/:executionId
   app.get<{ Params: { executionId: string } }>("/audit/decisions/:executionId", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Audit"],
       summary: "Decision detail",
@@ -97,6 +99,7 @@ export function registerAuditRoutes(
 
   // GET /audit/security
   app.get("/audit/security", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Audit"],
       summary: "Security dashboard",
@@ -119,6 +122,7 @@ export function registerAuditRoutes(
 
   // GET /audit/stats
   app.get("/audit/stats", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Audit"],
       summary: "Audit statistics",
@@ -141,6 +145,7 @@ export function registerAuditRoutes(
 
   // GET /audit/verifications/:executionId
   app.get<{ Params: { executionId: string } }>("/audit/verifications/:executionId", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Audit"],
       summary: "Verification history",

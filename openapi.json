@@ -214,6 +214,38 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Rate limit exceeded",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "remaining": {
+                      "type": "integer"
+                    },
+                    "reset": {
+                      "type": "integer",
+                      "description": "Unix timestamp when the rate limit resets"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "limit",
+                    "remaining",
+                    "reset"
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -370,6 +402,38 @@
                   },
                   "required": [
                     "error"
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Rate limit exceeded",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "remaining": {
+                      "type": "integer"
+                    },
+                    "reset": {
+                      "type": "integer",
+                      "description": "Unix timestamp when the rate limit resets"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "limit",
+                    "remaining",
+                    "reset"
                   ]
                 }
               }

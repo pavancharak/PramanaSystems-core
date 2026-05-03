@@ -77,6 +77,7 @@ export function registerRoutes(
   // GET /health ──────────────────────────────────────────────────────────────
 
   app.get("/health", {
+    config: { rateLimit: { max: 300, timeWindow: "1 minute" } },
     schema: {
       tags: ["Runtime"],
       summary: "Health check",
@@ -120,6 +121,7 @@ export function registerRoutes(
   };
 
   app.get("/runtime/manifest", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Runtime"],
       summary: "Runtime bundle manifest",
@@ -130,6 +132,7 @@ export function registerRoutes(
   }, stub);
 
   app.get("/runtime/capabilities", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Runtime"],
       summary: "Runtime capability declarations",
@@ -140,6 +143,7 @@ export function registerRoutes(
   }, stub);
 
   app.post("/evaluate", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Execution"],
       summary: "Evaluate a policy without executing",
@@ -151,6 +155,7 @@ export function registerRoutes(
   }, stub);
 
   app.post("/simulate", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Execution"],
       summary: "Simulate a governance decision dry-run",
