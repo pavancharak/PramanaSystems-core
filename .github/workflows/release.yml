@@ -29,6 +29,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate dev keys for tests
+        run: |
+          mkdir -p dev-keys
+          node -e "
+            const { generateKeyPairSync } = require('crypto');
+            const { privateKey, publicKey } = generateKeyPairSync('ed25519', {
+              privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+              publicKeyEncoding: { type: 'spki', format: 'pem' }
+            });
+            require('fs').writeFileSync('dev-keys/bundle_signing_key', privateKey);
+            require('fs').writeFileSync('dev-keys/bundle_signing_key.pub', publicKey);
+          "
+
       # release:validate runs: build → check → pack:packages →
       # release:manifest → release:attest → release:reproducibility →
       # consumer integration test. All gates must pass before publish.

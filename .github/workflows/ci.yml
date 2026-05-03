@@ -34,5 +34,18 @@ jobs:
       - name: Build workspace packages
         run: npm run build
 
+      - name: Generate dev keys for tests
+        run: |
+          mkdir -p dev-keys
+          node -e "
+            const { generateKeyPairSync } = require('crypto');
+            const { privateKey, publicKey } = generateKeyPairSync('ed25519', {
+              privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+              publicKeyEncoding: { type: 'spki', format: 'pem' }
+            });
+            require('fs').writeFileSync('dev-keys/bundle_signing_key', privateKey);
+            require('fs').writeFileSync('dev-keys/bundle_signing_key.pub', publicKey);
+          "
+
       - name: Run full check suite
         run: npm run check
