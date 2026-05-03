@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -7,76 +7,79 @@ on:
 
 jobs:
   release:
+    name: Validate & Publish
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      # registry-url writes //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
+      # into .npmrc so every subsequent npm publish picks it up.
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: "20"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
 
-      - name: Install
+      - name: Install dependencies
         run: npm ci
 
-      - name: Run Release Validation
+      # release:validate runs: build → check → pack:packages →
+      # release:manifest → release:attest → release:reproducibility →
+      # consumer integration test. All gates must pass before publish.
+      - name: Release validation
         run: npm run release:validate
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Build Workspace Packages
-        run: npm run build:packages
+      # Publish in dependency order: lower-level packages first so that
+      # dependents resolve against the freshly published versions.
+      - name: Publish @pramanasystems/bundle
+        run: npm publish --workspace=packages/bundle --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Pack Bundle
-        run: |
-          cd packages/bundle
-          npm pack
+      - name: Publish @pramanasystems/crypto
+        run: npm publish --workspace=packages/crypto --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Pack Crypto
-        run: |
-          cd packages/crypto
-          npm pack
+      - name: Publish @pramanasystems/governance
+        run: npm publish --workspace=packages/governance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Pack Governance
-        run: |
-          cd packages/governance
-          npm pack
+      - name: Publish @pramanasystems/execution
+        run: npm publish --workspace=packages/execution --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Pack Execution
-        run: |
-          cd packages/execution
-          npm pack
+      - name: Publish @pramanasystems/verifier
+        run: npm publish --workspace=packages/verifier --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Pack Verifier
-        run: |
-          cd packages/verifier
-          npm pack
+      - name: Publish @pramanasystems/core
+        run: npm publish --workspace=packages/core --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Pack Core
-        run: |
-          cd packages/core
-          npm pack
+      - name: Publish @pramanasystems/verifier-cli
+        run: npm publish --workspace=packages/verifier-cli --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Generate Release Manifest
-        run: npm run release:manifest
+      - name: Publish @pramanasystems/server
+        run: npm publish --workspace=packages/server --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Sign Release Manifest
-        run: npm run release:sign
-
-      - name: Upload Release Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: pramanasystems-release-artifacts
-
-          path: |
-            packages/bundle/*.tgz
-            packages/crypto/*.tgz
-            packages/governance/*.tgz
-            packages/execution/*.tgz
-            packages/verifier/*.tgz
-            packages/core/*.tgz
-            release-manifest.json
-            release-manifest.sig
-
-
-
+      - name: Publish @pramanasystems/sdk-client
+        run: npm publish --workspace=packages/sdk-client --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
