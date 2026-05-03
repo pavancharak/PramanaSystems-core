@@ -81,11 +81,36 @@ export function registerExecuteRoute(
       security: [{ bearerAuth: [] }],
       body: {
         type: "object",
+        additionalProperties: false,
         properties: {
-          policy_id:      { type: "string", description: "Policy identifier" },
-          policy_version: { type: "string", description: "Semantic version of the policy" },
-          decision_type:  { type: "string", description: "Decision type to execute (e.g. approve, deny)" },
-          signals_hash:   { type: "string", description: "SHA-256 hex digest of the input signals payload" },
+          policy_id: {
+            type: "string",
+            description: "Policy identifier",
+            minLength: 1,
+            maxLength: 128,
+            pattern: "^[a-zA-Z0-9_-]+$",
+          },
+          policy_version: {
+            type: "string",
+            description: "Semantic version of the policy",
+            minLength: 1,
+            maxLength: 32,
+            pattern: "^v?\\d+(\\.\\d+){0,2}([-+][\\w.-]+)?$",
+          },
+          decision_type: {
+            type: "string",
+            description: "Decision type to execute (e.g. approve, deny)",
+            minLength: 1,
+            maxLength: 64,
+            pattern: "^[a-zA-Z0-9_-]+$",
+          },
+          signals_hash: {
+            type: "string",
+            description: "SHA-256 hex digest of the input signals payload",
+            minLength: 64,
+            maxLength: 64,
+            pattern: "^[0-9a-f]{64}$",
+          },
         },
         required: ["policy_id", "policy_version", "decision_type", "signals_hash"],
       },
@@ -101,15 +126,7 @@ export function registerExecuteRoute(
     req: FastifyRequest<{ Body: ExecuteBody }>,
     reply: FastifyReply,
   ): Promise<void> => {
-    const { policy_id, policy_version, decision_type, signals_hash } =
-      req.body ?? ({} as ExecuteBody);
-
-    if (!policy_id || !policy_version || !decision_type || !signals_hash) {
-      reply.code(400).send({
-        error: "Missing required fields: policy_id, policy_version, decision_type, signals_hash",
-      });
-      return;
-    }
+    const { policy_id, policy_version, decision_type, signals_hash } = req.body;
 
     try {
       const attestation = executeSimple(

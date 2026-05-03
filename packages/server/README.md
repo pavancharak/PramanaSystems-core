@@ -90,6 +90,17 @@ curl http://localhost:3000/health
 
 Runs the deterministic governance runtime and returns a signed `ExecutionAttestation`.
 
+**Request body validation:**
+
+| Field | Type | minLength | maxLength | Pattern |
+|---|---|---|---|---|
+| `policy_id` | string | 1 | 128 | `^[a-zA-Z0-9_-]+$` |
+| `policy_version` | string | 1 | 32 | `^v?\d+(\.\d+){0,2}([-+][\w.-]+)?$` |
+| `decision_type` | string | 1 | 64 | `^[a-zA-Z0-9_-]+$` |
+| `signals_hash` | string | 64 | 64 | `^[0-9a-f]{64}$` |
+
+Extra fields not listed above are rejected with `400 Bad Request` (`additionalProperties: false`).
+
 ```bash
 curl -X POST http://localhost:3000/execute \
   -H "Content-Type: application/json" \
@@ -97,7 +108,7 @@ curl -X POST http://localhost:3000/execute \
     "policy_id":      "loan-approval",
     "policy_version": "v1",
     "decision_type":  "approve",
-    "signals_hash":   "abc123signals"
+    "signals_hash":   "a3f1e2d4b5c6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
   }'
 ```
 
@@ -111,7 +122,7 @@ curl -X POST http://localhost:3000/execute \
     "runtime_version": "1.0.0",
     "runtime_hash":    "a1b2c3...",
     "decision":        "approve",
-    "signals_hash":    "abc123signals",
+    "signals_hash":    "a3f1e2d4b5c6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
     "executed_at":     "2025-05-02T10:00:00.000Z"
   },
   "signature": "base64-encoded-Ed25519-signature"
@@ -122,7 +133,7 @@ curl -X POST http://localhost:3000/execute \
 
 | Status | Meaning |
 |---|---|
-| `400` | Missing required fields |
+| `400` | Missing required fields, failed pattern/length validation, or unexpected fields |
 | `422` | Execution failed (token expired, replay detected, etc.) |
 
 ---

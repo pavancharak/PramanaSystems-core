@@ -91,6 +91,7 @@ export function registerVerifyRoute(
       security: [{ bearerAuth: [] }],
       body: {
         ...S_ATTESTATION,
+        additionalProperties: false,
         description: "An ExecutionAttestation as returned by POST /execute",
       },
       response: {

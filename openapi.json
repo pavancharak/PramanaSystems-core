@@ -111,22 +111,35 @@
             "application/json": {
               "schema": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "policy_id": {
                     "type": "string",
-                    "description": "Policy identifier"
+                    "description": "Policy identifier",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
                   },
                   "policy_version": {
                     "type": "string",
-                    "description": "Semantic version of the policy"
+                    "description": "Semantic version of the policy",
+                    "minLength": 1,
+                    "maxLength": 32,
+                    "pattern": "^v?\\d+(\\.\\d+){0,2}([-+][\\w.-]+)?$"
                   },
                   "decision_type": {
                     "type": "string",
-                    "description": "Decision type to execute (e.g. approve, deny)"
+                    "description": "Decision type to execute (e.g. approve, deny)",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
                   },
                   "signals_hash": {
                     "type": "string",
-                    "description": "SHA-256 hex digest of the input signals payload"
+                    "description": "SHA-256 hex digest of the input signals payload",
+                    "minLength": 64,
+                    "maxLength": 64,
+                    "pattern": "^[0-9a-f]{64}$"
                   }
                 },
                 "required": [
@@ -371,6 +384,7 @@
                   "result",
                   "signature"
                 ],
+                "additionalProperties": false,
                 "description": "An ExecutionAttestation as returned by POST /execute"
               }
             }
