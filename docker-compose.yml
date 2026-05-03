@@ -1,0 +1,40 @@
+services:
+
+  server:
+    build:
+      context: .
+      dockerfile: packages/server/Dockerfile
+    environment:
+      - PRAMANA_API_KEY=${PRAMANA_API_KEY:-}
+      - PRAMANA_PRIVATE_KEY=${PRAMANA_PRIVATE_KEY:-}
+      - PRAMANA_PUBLIC_KEY=${PRAMANA_PUBLIC_KEY:-}
+      - PORT=${PORT:-3000}
+      - HOST=${HOST:-0.0.0.0}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - pramana-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: packages/dashboard/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      server:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - pramana-net
+
+networks:
+  pramana-net:
+    driver: bridge

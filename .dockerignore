@@ -3,4 +3,21 @@ dist
 coverage
 .git
 runtime-audit
+.turbo
+.claude
+.vscode
 
+# Secrets — never send to build daemon
+.env
+trust/*.key
+dev-keys/
+*.pem
+*.sig.tmp
+*.audit.tmp
+
+# Test artifacts
+tests/integration/aws-kms
+PramanaSystems-consumer-test
+
+# Packed tarballs
+*.tgz
