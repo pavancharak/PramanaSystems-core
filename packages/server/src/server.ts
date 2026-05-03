@@ -2,6 +2,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { createHash, randomUUID } from "node:crypto";
 import rateLimit from "@fastify/rate-limit";
 import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
 
 import { signer, verifier, runtimeManifest } from "./runtime.js";
 import { authHook } from "./auth.js";
@@ -78,6 +79,28 @@ export function createServer(): ServerInstance {
     maxAge:         86400,
   });
 
+  app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    dnsPrefetchControl: { allow: false },
+    frameguard: { action: "deny" },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    ieNoOpen: true,
+    noSniff: true,
+    referrerPolicy: { policy: "no-referrer" },
+    xssFilter: true,
+  });
+
   const auditDb = process.env.AUDIT_DATABASE_URL
     ? new AuditDb(process.env.AUDIT_DATABASE_URL)
     : undefined;
@@ -91,6 +114,10 @@ export function createServer(): ServerInstance {
 
   app.addHook("onSend", async (req, reply) => {
     reply.header("X-Request-ID", req.id);
+  });
+
+  app.addHook("onSend", async (_req, reply) => {
+    reply.removeHeader("X-Powered-By");
   });
 
   app.addHook("preHandler", authHook);

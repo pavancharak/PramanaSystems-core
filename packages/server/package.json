@@ -1,6 +1,6 @@
 {
   "name": "@pramanasystems/server",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "private": false,
   "type": "module",
   "description": "Fastify REST API server for PramanaSystems governance runtime.",
@@ -21,6 +21,7 @@
   "sideEffects": false,
   "dependencies": {
     "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
     "@fastify/rate-limit": "^10.3.0",
     "@pramanasystems/audit-db": "*",
     "@pramanasystems/crypto": "^1.0.4",

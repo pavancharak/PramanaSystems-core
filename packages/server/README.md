@@ -257,6 +257,27 @@ Preflight cache (`Access-Control-Max-Age`): **86400 s** (24 h).
 
 ---
 
+## Security headers
+
+All responses include the following HTTP security headers, set via [`@fastify/helmet`](https://github.com/fastify/fastify-helmet):
+
+| Header | Value | Purpose |
+|---|---|---|
+| `Content-Security-Policy` | `default-src 'none'; frame-ancestors 'none'` | Blocks all resource loading and framing — this is a pure API, not a browser app |
+| `Cross-Origin-Resource-Policy` | `cross-origin` | Allows cross-origin reads (needed for browser clients consuming the API) |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Enforces HTTPS for 1 year across all subdomains; eligible for HSTS preload list |
+| `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing |
+| `X-Frame-Options` | `DENY` | Blocks the response from being embedded in a frame |
+| `X-DNS-Prefetch-Control` | `off` | Disables DNS prefetching |
+| `Referrer-Policy` | `no-referrer` | Suppresses the `Referer` header on all requests |
+| `X-Download-Options` | `noopen` | Prevents IE from executing downloaded files in the browser context |
+| `X-XSS-Protection` | `0` | Disables the legacy XSS auditor (modern browsers ignore it; CSP is the correct control) |
+| `X-Powered-By` | _(removed)_ | Suppressed to avoid leaking server technology |
+
+`Cross-Origin-Embedder-Policy` is intentionally disabled — it would block cross-origin API requests from browser clients that have not opted in to COEP.
+
+---
+
 ## Graceful shutdown
 
 The server handles `SIGTERM` and `SIGINT` (Ctrl-C) with a clean, ordered shutdown:
