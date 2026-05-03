@@ -70,6 +70,7 @@ export function registerExecuteRoute(
   const { signer, verifier, auditDb } = deps;
 
   app.post<{ Body: ExecuteBody }>("/execute", {
+    bodyLimit: 65536,
     config: { rateLimit: { max: 100, timeWindow: "1 minute" } },
     schema: {
       tags: ["Execution"],
@@ -91,6 +92,7 @@ export function registerExecuteRoute(
       response: {
         200: { description: "Signed execution attestation", ...S_ATTESTATION },
         400: { description: "Missing or invalid request fields", ...S_ERROR },
+        413: { description: "Request body too large", ...S_ERROR },
         422: { description: "Execution failed (policy not found, token expired, replay detected)", ...S_ERROR },
         429: { description: "Rate limit exceeded", ...S_RATE_LIMIT_ERROR },
       },

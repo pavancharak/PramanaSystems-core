@@ -179,7 +179,19 @@ X-RateLimit-Remaining: 99
 X-RateLimit-Reset: 1714640460
 ```
 
-When a limit is exceeded the server responds with `429 Too Many Requests`:
+**Payload size limits** (enforced independently of rate limits):
+
+| Route | Max body |
+|---|---|
+| `POST /execute` | 64 KB |
+| `POST /verify` | 64 KB |
+| `POST /evaluate` | 64 KB |
+| `POST /simulate` | 64 KB |
+| All other routes | 1 MB (global default) |
+
+Requests exceeding the limit receive `413 Payload Too Large`. GET routes carry no body so no limit applies.
+
+When a rate limit is exceeded the server responds with `429 Too Many Requests`:
 
 ```json
 {

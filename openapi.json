@@ -196,6 +196,25 @@
               }
             }
           },
+          "413": {
+            "description": "Request body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Request body too large",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
           "422": {
             "description": "Execution failed (policy not found, token expired, replay detected)",
             "content": {
@@ -375,6 +394,25 @@
               "application/json": {
                 "schema": {
                   "description": "Malformed attestation body",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Request body too large",
                   "type": "object",
                   "properties": {
                     "error": {

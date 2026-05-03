@@ -80,6 +80,7 @@ export function registerVerifyRoute(
   const { verifier, runtimeManifest, auditDb } = deps;
 
   app.post<{ Body: ExecutionAttestation }>("/verify", {
+    bodyLimit: 65536,
     config: { rateLimit: { max: 200, timeWindow: "1 minute" } },
     schema: {
       tags: ["Verification"],
@@ -95,6 +96,7 @@ export function registerVerifyRoute(
       response: {
         200:  { description: "Verification result with per-check breakdown", ...S_VERIFICATION_RESULT },
         400:  { description: "Malformed attestation body", ...S_ERROR },
+        413:  { description: "Request body too large", ...S_ERROR },
         422:  { description: "Verification threw an unexpected error", ...S_ERROR },
         429:  { description: "Rate limit exceeded", ...S_RATE_LIMIT_ERROR },
       },

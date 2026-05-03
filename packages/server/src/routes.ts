@@ -143,6 +143,7 @@ export function registerRoutes(
   }, stub);
 
   app.post("/evaluate", {
+    bodyLimit: 65536,
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Execution"],
@@ -155,6 +156,7 @@ export function registerRoutes(
   }, stub);
 
   app.post("/simulate", {
+    bodyLimit: 65536,
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Execution"],
