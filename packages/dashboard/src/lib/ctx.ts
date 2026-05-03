@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-export type Page = "health" | "execute" | "verify" | "runtime";
+export type Page = "health" | "execute" | "verify" | "runtime" | "audit";
 
 export interface Settings {
   baseUrl: string;

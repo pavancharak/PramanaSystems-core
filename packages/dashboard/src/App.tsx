@@ -5,6 +5,7 @@ import { HealthPage }   from "./pages/HealthPage.tsx";
 import { ExecutePage }  from "./pages/ExecutePage.tsx";
 import { VerifyPage }   from "./pages/VerifyPage.tsx";
 import { RuntimePage }  from "./pages/RuntimePage.tsx";
+import { AuditPage }    from "./pages/AuditPage.tsx";
 import { AppContext }   from "./lib/ctx.ts";
 import type { Page, Settings } from "./lib/ctx.ts";
 import { getBaseUrl, getApiKey } from "./lib/storage.ts";
@@ -23,6 +24,7 @@ export default function App() {
     execute: <ExecutePage />,
     verify:  <VerifyPage />,
     runtime: <RuntimePage />,
+    audit:   <AuditPage />,
   };
 
   return (

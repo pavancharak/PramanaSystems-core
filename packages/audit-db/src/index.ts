@@ -9,7 +9,9 @@ export type {
   SecurityEventSeverity,
   ApiAccessInput,
   DecisionTimelineRow,
+  DecisionFilter,
   SecurityDashboardRow,
+  AuditStats,
   ExecutionAttestation,
   VerificationResult,
 } from "./types.js";

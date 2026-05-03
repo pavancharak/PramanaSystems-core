@@ -6,6 +6,7 @@ const TABS: { id: Page; label: string }[] = [
   { id: "execute", label: "Execute" },
   { id: "verify",  label: "Verify" },
   { id: "runtime", label: "Runtime" },
+  { id: "audit",   label: "Audit" },
 ];
 
 export function NavBar() {

@@ -14,19 +14,31 @@ export function registerAuditRoutes(
   auditDb: AuditDb,
 ): void {
 
-  // GET /audit/decisions?limit=100
-  app.get<{ Querystring: { limit?: string } }>("/audit/decisions", {
+  // GET /audit/decisions?limit=100&policy_id=...&decision=...&from=...&to=...
+  app.get<{
+    Querystring: {
+      limit?: string;
+      policy_id?: string;
+      decision?: string;
+      from?: string;
+      to?: string;
+    };
+  }>("/audit/decisions", {
     schema: {
       tags: ["Audit"],
       summary: "Decision timeline",
       description:
-        "Returns a paginated list of governance decisions joined with their " +
+        "Returns a paginated, filtered list of governance decisions joined with their " +
         "latest verification status. Ordered by executed_at descending.",
       security: [{ bearerAuth: [] }],
       querystring: {
         type: "object",
         properties: {
-          limit: { type: "string", description: "Max rows (default 100, max 1000)" },
+          limit:     { type: "string", description: "Max rows (default 100, max 1000)" },
+          policy_id: { type: "string", description: "Filter by exact policy_id" },
+          decision:  { type: "string", description: "Filter by decision value (e.g. approve, deny)" },
+          from:      { type: "string", description: "ISO date lower bound on executed_at (inclusive)" },
+          to:        { type: "string", description: "ISO date upper bound on executed_at (inclusive)" },
         },
       },
       response: {
@@ -34,13 +46,16 @@ export function registerAuditRoutes(
         500: S_ERROR,
       },
     },
-  }, async (
-    req: FastifyRequest<{ Querystring: { limit?: string } }>,
-    reply: FastifyReply,
-  ): Promise<void> => {
-    const limit = Math.min(parseInt(req.query.limit ?? "100", 10) || 100, 1000);
+  }, async (req, reply: FastifyReply): Promise<void> => {
+    const { limit, policy_id, decision, from, to } = req.query;
+    const parsedLimit = Math.min(parseInt(limit ?? "100", 10) || 100, 1000);
     try {
-      reply.send(await auditDb.getDecisionTimeline(limit));
+      reply.send(await auditDb.getDecisionTimeline(parsedLimit, {
+        policy_id: policy_id || undefined,
+        decision:  decision  || undefined,
+        from_date: from      || undefined,
+        to_date:   to        || undefined,
+      }));
     } catch (err) {
       reply.code(500).send({ error: (err as Error).message });
     }
@@ -97,6 +112,28 @@ export function registerAuditRoutes(
   }, async (_req: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       reply.send(await auditDb.getSecurityDashboard());
+    } catch (err) {
+      reply.code(500).send({ error: (err as Error).message });
+    }
+  });
+
+  // GET /audit/stats
+  app.get("/audit/stats", {
+    schema: {
+      tags: ["Audit"],
+      summary: "Audit statistics",
+      description:
+        "Returns aggregate counts across all audit tables: total decisions, decisions today, " +
+        "verifications (valid/invalid), security events, and API access calls.",
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: { description: "Aggregate audit statistics", type: "object" },
+        500: S_ERROR,
+      },
+    },
+  }, async (_req: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    try {
+      reply.send(await auditDb.getStats());
     } catch (err) {
       reply.code(500).send({ error: (err as Error).message });
     }

@@ -10,7 +10,9 @@ import type {
   SecurityEventInput,
   ApiAccessInput,
   DecisionTimelineRow,
+  DecisionFilter,
   SecurityDashboardRow,
+  AuditStats,
 } from "./types.js";
 import { runMigrations } from "./migrations.js";
 
@@ -115,12 +117,50 @@ export class AuditDb {
       .catch(() => undefined);
   }
 
-  async getDecisionTimeline(limit = 100): Promise<DecisionTimelineRow[]> {
+  async getDecisionTimeline(limit = 100, filter?: DecisionFilter): Promise<DecisionTimelineRow[]> {
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+
+    if (filter?.policy_id) {
+      values.push(filter.policy_id);
+      conditions.push(`policy_id = $${values.length}`);
+    }
+    if (filter?.decision) {
+      values.push(filter.decision);
+      conditions.push(`decision = $${values.length}`);
+    }
+    if (filter?.from_date) {
+      values.push(filter.from_date);
+      conditions.push(`executed_at >= $${values.length}`);
+    }
+    if (filter?.to_date) {
+      values.push(filter.to_date);
+      conditions.push(`executed_at <= $${values.length}`);
+    }
+
+    values.push(limit);
+    const limitParam = `$${values.length}`;
+    const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
     const { rows } = await this.pool.query<DecisionTimelineRow>(
-      `SELECT * FROM view_decision_timeline LIMIT $1`,
-      [limit],
+      `SELECT * FROM view_decision_timeline ${where} ORDER BY executed_at DESC LIMIT ${limitParam}`,
+      values,
     );
     return rows;
+  }
+
+  async getStats(): Promise<AuditStats> {
+    const { rows } = await this.pool.query<AuditStats>(`
+      SELECT
+        (SELECT COUNT(*) FROM audit_decisions)::text                                          AS total_decisions,
+        (SELECT COUNT(*) FROM audit_decisions WHERE executed_at >= CURRENT_DATE)::text        AS decisions_today,
+        (SELECT COUNT(*) FROM audit_verifications)::text                                      AS total_verifications,
+        (SELECT COUNT(*) FROM audit_verifications WHERE valid = true)::text                   AS valid_verifications,
+        (SELECT COUNT(*) FROM audit_verifications WHERE valid = false)::text                  AS invalid_verifications,
+        (SELECT COUNT(*) FROM audit_security_events)::text                                    AS total_security_events,
+        (SELECT COUNT(*) FROM audit_api_access)::text                                         AS total_api_calls
+    `);
+    return rows[0]!;
   }
 
   async getDecisionById(executionId: string): Promise<AuditDecision | null> {

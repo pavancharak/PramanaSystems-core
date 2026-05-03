@@ -85,3 +85,23 @@ export interface SecurityDashboardRow {
   last_occurrence: Date;
   first_occurrence: Date;
 }
+
+export interface DecisionFilter {
+  policy_id?: string;
+  decision?: string;
+  /** ISO date string — inclusive lower bound on executed_at */
+  from_date?: string;
+  /** ISO date string — inclusive upper bound on executed_at */
+  to_date?: string;
+}
+
+/** All counts returned as strings because pg serialises BIGINT as string. */
+export interface AuditStats {
+  total_decisions: string;
+  decisions_today: string;
+  total_verifications: string;
+  valid_verifications: string;
+  invalid_verifications: string;
+  total_security_events: string;
+  total_api_calls: string;
+}
