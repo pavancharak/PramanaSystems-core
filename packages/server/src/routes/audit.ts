@@ -14,12 +14,13 @@ export function registerAuditRoutes(
   auditDb: AuditDb,
 ): void {
 
-  // GET /audit/decisions?limit=100&policy_id=...&decision=...&from=...&to=...
+  // GET /audit/decisions?limit=50&offset=0&policy_id=...&decision=...&from=...&to=...
   app.get<{
     Querystring: {
-      limit?: string;
+      limit?: number;
+      offset?: number;
       policy_id?: string;
-      decision?: string;
+      decision?: "approve" | "deny" | "any";
       from?: string;
       to?: string;
     };
@@ -35,27 +36,36 @@ export function registerAuditRoutes(
       querystring: {
         type: "object",
         properties: {
-          limit:     { type: "string", description: "Max rows (default 100, max 1000)" },
-          policy_id: { type: "string", description: "Filter by exact policy_id" },
-          decision:  { type: "string", description: "Filter by decision value (e.g. approve, deny)" },
-          from:      { type: "string", description: "ISO date lower bound on executed_at (inclusive)" },
-          to:        { type: "string", description: "ISO date upper bound on executed_at (inclusive)" },
+          limit:     { type: "integer", minimum: 1, maximum: 1000, default: 50,
+                       description: "Max rows (default 50, max 1000)" },
+          offset:    { type: "integer", minimum: 0, default: 0,
+                       description: "Row offset for pagination (default 0)" },
+          policy_id: { type: "string", maxLength: 200,
+                       description: "Filter by exact policy_id" },
+          decision:  { type: "string", enum: ["approve", "deny", "any"],
+                       description: "Filter by decision value; 'any' returns all" },
+          from:      { type: "string", format: "date-time",
+                       description: "ISO 8601 lower bound on executed_at (inclusive)" },
+          to:        { type: "string", format: "date-time",
+                       description: "ISO 8601 upper bound on executed_at (inclusive)" },
         },
       },
       response: {
         200: { description: "Decision timeline rows", type: "array", items: { type: "object" } },
+        400: { description: "Invalid query parameters", ...S_ERROR },
         500: S_ERROR,
       },
     },
   }, async (req, reply: FastifyReply): Promise<void> => {
-    const { limit, policy_id, decision, from, to } = req.query;
-    const parsedLimit = Math.min(parseInt(limit ?? "100", 10) || 100, 1000);
+    const { limit, offset: _offset, policy_id, decision, from, to } = req.query;
+    const parsedLimit = parseInt(String(limit ?? 50), 10);
+    const normalizedDecision = decision === "any" ? undefined : decision;
     try {
       reply.send(await auditDb.getDecisionTimeline(parsedLimit, {
         policy_id: policy_id || undefined,
-        decision:  decision  || undefined,
-        from_date: from      || undefined,
-        to_date:   to        || undefined,
+        decision:  normalizedDecision,
+        from_date: from || undefined,
+        to_date:   to   || undefined,
       }));
     } catch (err) {
       reply.code(500).send({ error: (err as Error).message });
@@ -72,11 +82,12 @@ export function registerAuditRoutes(
       security: [{ bearerAuth: [] }],
       params: {
         type: "object",
-        properties: { executionId: { type: "string", format: "uuid" } },
+        properties: { executionId: { type: "string", minLength: 1, maxLength: 200 } },
         required: ["executionId"],
       },
       response: {
         200: { description: "Audit decision record", type: "object" },
+        400: { description: "Invalid path parameters", ...S_ERROR },
         404: S_ERROR,
         500: S_ERROR,
       },
@@ -97,8 +108,14 @@ export function registerAuditRoutes(
     }
   });
 
-  // GET /audit/security
-  app.get("/audit/security", {
+  // GET /audit/security?from=...&to=...&limit=50
+  app.get<{
+    Querystring: {
+      from?: string;
+      to?: string;
+      limit?: number;
+    };
+  }>("/audit/security", {
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     schema: {
       tags: ["Audit"],
@@ -107,8 +124,20 @@ export function registerAuditRoutes(
         "Returns aggregated security event counts grouped by event_type and severity, " +
         "ordered by event_count descending.",
       security: [{ bearerAuth: [] }],
+      querystring: {
+        type: "object",
+        properties: {
+          from:  { type: "string", format: "date-time",
+                   description: "ISO 8601 lower bound on occurred_at (inclusive)" },
+          to:    { type: "string", format: "date-time",
+                   description: "ISO 8601 upper bound on occurred_at (inclusive)" },
+          limit: { type: "integer", minimum: 1, maximum: 1000, default: 50,
+                   description: "Max rows (default 50, max 1000)" },
+        },
+      },
       response: {
         200: { description: "Security event summary", type: "array", items: { type: "object" } },
+        400: { description: "Invalid query parameters", ...S_ERROR },
         500: S_ERROR,
       },
     },
