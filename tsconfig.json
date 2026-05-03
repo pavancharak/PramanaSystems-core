@@ -17,6 +17,9 @@
     "baseUrl": ".",
 
     "paths": {
+      "@pramanasystems/audit-db": [
+        "./packages/audit-db/src"
+      ],
       "@pramanasystems/bundle": [
         "./packages/bundle/src"
       ],

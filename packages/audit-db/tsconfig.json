@@ -1,17 +1,16 @@
 {
   "extends": "../../tsconfig.json",
+
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
     "paths": {
-      "@pramanasystems/audit-db":  ["../audit-db/src"],
-      "@pramanasystems/bundle":    ["../bundle/dist"],
-      "@pramanasystems/crypto":    ["../crypto/dist"],
       "@pramanasystems/execution": ["../execution/dist"],
-      "@pramanasystems/governance":["../governance/dist"],
       "@pramanasystems/verifier":  ["../verifier/dist"]
     }
   },
+
   "include": ["src"],
-  "exclude": ["dist", "node_modules"]
+
+  "exclude": ["dist", "node_modules", "tests"]
 }

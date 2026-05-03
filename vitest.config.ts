@@ -7,6 +7,12 @@ import path from "node:path";
 export default defineConfig({
   resolve: {
     alias: {
+      "@pramanasystems/audit-db":
+        path.resolve(
+          __dirname,
+          "packages/audit-db/src"
+        ),
+
       "@pramanasystems/bundle":
         path.resolve(
           __dirname,

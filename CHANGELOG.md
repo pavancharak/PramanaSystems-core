@@ -4,6 +4,29 @@ All notable changes to PramanaSystems Core are documented here.
 
 ---
 
+## [1.0.7] — 2026-05-03
+
+### Added
+
+- **`@pramanasystems/audit-db`** — PostgreSQL audit database client for immutable governance audit trails. Ships as a standalone workspace package (`packages/audit-db`):
+  - **4 tables**: `audit_decisions` (full `ExecutionAttestation` as JSONB), `audit_verifications`, `audit_security_events`, `audit_api_access`.
+  - **2 views**: `view_decision_timeline` (decisions joined with latest verification status), `view_security_dashboard` (security events aggregated by type/severity).
+  - **11 indexes** covering all high-cardinality query patterns.
+  - `AuditDb` class — `recordDecision()`, `recordVerification()`, `recordSecurityEvent()`, `recordApiAccess()` are all **fire-and-forget** (never block server responses, never throw).
+  - `migrate()` — idempotent schema migration using `CREATE TABLE IF NOT EXISTS` / `CREATE OR REPLACE VIEW`; safe to run on every startup.
+  - `getDecisionTimeline()`, `getDecisionById()`, `getVerificationsByExecution()`, `getSecurityDashboard()` — typed read queries.
+- **`@pramanasystems/server`** — audit integration:
+  - `POST /execute` now calls `auditDb.recordDecision()` fire-and-forget after attestation is produced.
+  - `POST /verify` now calls `auditDb.recordVerification()` fire-and-forget after verification completes.
+  - `onResponse` Fastify hook records every HTTP request to `audit_api_access` and emits a `severity: medium` `auth_failure` security event for every 401.
+  - **4 new audit query routes** (registered only when `AUDIT_DATABASE_URL` is set): `GET /audit/decisions`, `GET /audit/decisions/:executionId`, `GET /audit/security`, `GET /audit/verifications/:executionId`.
+  - Route logic extracted to `src/routes/execute.ts`, `src/routes/verify.ts`, `src/routes/audit.ts`; middleware in `src/middleware/audit.ts`.
+- **`docker-compose.yml`** — `postgres:16-alpine` service (`pramana_audit` database) with healthcheck; server `depends_on` postgres `service_healthy`; `AUDIT_DATABASE_URL` wired automatically.
+- **`.env.example`** — `POSTGRES_PASSWORD` and `AUDIT_DATABASE_URL` documented.
+- **`packages/audit-db/tests/audit-db.test.ts`** — 18 vitest unit tests with mocked `pg.Pool` covering all fire-and-forget methods, read queries, migration transaction handling, and error swallowing.
+
+---
+
 ## [1.0.6] — 2026-05-03
 
 ### Added

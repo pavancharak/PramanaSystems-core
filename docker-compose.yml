@@ -1,5 +1,25 @@
 services:
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       pramana_audit
+      POSTGRES_USER:     pramana
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - pramana-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pramana -d pramana_audit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   server:
     build:
       context: .
@@ -10,8 +30,12 @@ services:
       - PRAMANA_PUBLIC_KEY=${PRAMANA_PUBLIC_KEY:-}
       - PORT=${PORT:-3000}
       - HOST=${HOST:-0.0.0.0}
+      - AUDIT_DATABASE_URL=postgresql://pramana:${POSTGRES_PASSWORD:-changeme}@postgres:5432/pramana_audit
     ports:
       - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - pramana-net
@@ -38,3 +62,6 @@ services:
 networks:
   pramana-net:
     driver: bridge
+
+volumes:
+  postgres_data:
