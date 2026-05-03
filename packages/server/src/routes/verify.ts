@@ -117,6 +117,7 @@ export function registerVerifyRoute(
     try {
       const result = verifyAttestation(body, verifier, runtimeManifest);
       auditDb?.recordVerification(body.result.execution_id, result);
+      req.log.info({ reqId: req.id, valid: result.valid, checks: result.checks }, "verify:success");
       reply.send(result);
     } catch (err) {
       reply.code(422).send({ error: (err as Error).message });

@@ -19,6 +19,7 @@ export async function authHook(
 
   const auth = req.headers.authorization;
   if (auth !== `Bearer ${apiKey}`) {
+    req.log.warn({ reqId: req.id, reason: "auth_failure" }, "auth_failure");
     reply.code(401).send({ error: "Unauthorized" });
   }
 }

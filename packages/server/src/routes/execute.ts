@@ -123,8 +123,10 @@ export function registerExecuteRoute(
         verifier,
       );
       auditDb?.recordDecision(attestation);
+      req.log.info({ reqId: req.id, policy_id, policy_version, decision_type }, "execute:success");
       reply.send(attestation);
     } catch (err) {
+      req.log.warn({ reqId: req.id, error: (err as Error).message }, "execute:failure");
       reply.code(422).send({ error: (err as Error).message });
     }
   });

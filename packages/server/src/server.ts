@@ -1,5 +1,5 @@
 import Fastify, { type FastifyInstance } from "fastify";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import rateLimit from "@fastify/rate-limit";
 
 import { signer, verifier, runtimeManifest } from "./runtime.js";
@@ -24,7 +24,38 @@ import { createAuditMiddleware } from "./middleware/audit.js";
  * - Set `PRAMANA_API_KEY` to enable authentication; omit it for dev mode.
  */
 export function createServer(): FastifyInstance {
-  const app = Fastify({ logger: true, bodyLimit: 1048576 }); // 1 MB global default
+  const app = Fastify({
+    bodyLimit: 1048576, // 1 MB global default
+    logger: {
+      level: process.env.LOG_LEVEL ?? (process.env.NODE_ENV === "production" ? "info" : "debug"),
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.body.signature",
+          "req.body.attestation.signature",
+        ],
+        censor: "[REDACTED]",
+      },
+      serializers: {
+        req(req) {
+          const fwd = req.headers["x-forwarded-for"];
+          return {
+            method: req.method,
+            url: req.url,
+            reqId: req.id,
+            remoteAddress: (Array.isArray(fwd) ? fwd[0] : fwd) ?? req.socket?.remoteAddress,
+          };
+        },
+        res(res) {
+          return {
+            statusCode: res.statusCode,
+          };
+        },
+      },
+    },
+    genReqId: (req: import("node:http").IncomingMessage) =>
+      (req.headers["x-request-id"] as string | undefined) ?? randomUUID(),
+  });
 
   const auditDb = process.env.AUDIT_DATABASE_URL
     ? new AuditDb(process.env.AUDIT_DATABASE_URL)
@@ -36,6 +67,10 @@ export function createServer(): FastifyInstance {
     );
     app.addHook("onResponse", createAuditMiddleware(auditDb));
   }
+
+  app.addHook("onSend", async (req, reply) => {
+    reply.header("X-Request-ID", req.id);
+  });
 
   app.addHook("preHandler", authHook);
 

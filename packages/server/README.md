@@ -219,6 +219,53 @@ When a rate limit is exceeded the server responds with `429 Too Many Requests`:
 
 ---
 
+## Logging
+
+The server uses [pino](https://getpino.io/) structured JSON logging via Fastify.
+
+### Log level
+
+| `LOG_LEVEL` | Default |
+|---|---|
+| `trace` / `debug` / `info` / `warn` / `error` / `fatal` | `debug` in development, `info` in production |
+
+Set `NODE_ENV=production` or `LOG_LEVEL=info` to suppress debug output. `LOG_LEVEL` takes priority over `NODE_ENV`.
+
+### Request ID (`X-Request-ID`)
+
+Every request gets a unique ID. The server:
+
+- Reuses `X-Request-ID` from the incoming request if present.
+- Generates a `crypto.randomUUID()` otherwise.
+- Echoes the ID back in the `X-Request-ID` response header.
+- Includes `reqId` in every structured log line for that request.
+
+```bash
+curl -H "X-Request-ID: my-trace-id" http://localhost:3000/health
+# Response header: X-Request-ID: my-trace-id
+```
+
+### Redacted fields
+
+The following fields are replaced with `[REDACTED]` in all log output:
+
+| Field | Why |
+|---|---|
+| `req.headers.authorization` | Bearer token must not appear in logs |
+| `req.body.signature` | Ed25519 signature is key material |
+| `req.body.attestation.signature` | Nested signature in verify requests |
+
+### Structured log events
+
+| Event | Level | Fields |
+|---|---|---|
+| Governance decision executed | `info` | `reqId`, `policy_id`, `policy_version`, `decision_type` |
+| Governance decision failed | `warn` | `reqId`, `error` |
+| Attestation verified | `info` | `reqId`, `valid`, `checks` |
+| Authentication failure | `warn` | `reqId`, `reason: "auth_failure"` |
+
+---
+
 ## Authentication
 
 When `PRAMANA_API_KEY` is set, all requests must include:
