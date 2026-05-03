@@ -219,6 +219,33 @@ When a rate limit is exceeded the server responds with `429 Too Many Requests`:
 
 ---
 
+## CORS
+
+Cross-origin requests are controlled via the `CORS_ORIGIN` environment variable.
+
+| `CORS_ORIGIN` value | Behaviour |
+|---|---|
+| _(not set)_ | Allow `http://localhost:5173` and `http://localhost:8080` (dev default) |
+| `http://localhost:5173,https://app.example.com` | Allow those two origins only |
+| `*` | Reflect any request origin (allows all — use with care in production) |
+
+```bash
+# Single origin
+CORS_ORIGIN=https://app.example.com
+
+# Multiple origins (comma-separated, no spaces)
+CORS_ORIGIN=https://app.example.com,https://admin.example.com
+```
+
+**`credentials: true`** is set on all CORS responses. This means browsers will include cookies and `Authorization` headers on cross-origin requests. When using `CORS_ORIGIN=*`, the server reflects the specific request origin rather than sending a literal `*` so that credentials continue to work.
+
+Allowed methods: `GET`, `POST`.  
+Allowed request headers: `Content-Type`, `Authorization`, `X-Request-ID`.  
+Exposed response headers: `X-Request-ID`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`.  
+Preflight cache (`Access-Control-Max-Age`): **86400 s** (24 h).
+
+---
+
 ## Graceful shutdown
 
 The server handles `SIGTERM` and `SIGINT` (Ctrl-C) with a clean, ordered shutdown:

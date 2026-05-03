@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { createHash, randomUUID } from "node:crypto";
 import rateLimit from "@fastify/rate-limit";
+import cors from "@fastify/cors";
 
 import { signer, verifier, runtimeManifest } from "./runtime.js";
 import { authHook } from "./auth.js";
@@ -60,6 +61,21 @@ export function createServer(): ServerInstance {
     },
     genReqId: (req: import("node:http").IncomingMessage) =>
       (req.headers["x-request-id"] as string | undefined) ?? randomUUID(),
+  });
+
+  const corsOriginEnv = process.env.CORS_ORIGIN;
+  const corsOrigin: string | string[] | boolean =
+    corsOriginEnv === "*" ? true :
+    corsOriginEnv         ? corsOriginEnv.split(",").map(o => o.trim()) :
+                            ["http://localhost:5173", "http://localhost:8080"];
+
+  app.register(cors, {
+    origin:         corsOrigin,
+    methods:        ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+    exposedHeaders: ["X-Request-ID", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"],
+    credentials:    true,
+    maxAge:         86400,
   });
 
   const auditDb = process.env.AUDIT_DATABASE_URL
