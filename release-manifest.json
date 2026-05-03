@@ -5,43 +5,43 @@
       "package": "@pramanasystems/bundle",
       "version": "1.0.4",
       "artifact": "pramanasystems-bundle-1.0.4.tgz",
-      "sha256": "09fd7eb7d411eab1356ee2f811054f567d5ce205927dab7c26fa96e461cde3fc"
+      "sha256": "04bfb78fdf80d8483c61039deeb458f9ae8f59f24ef722492b4584f28310f4ce"
     },
     {
       "package": "@pramanasystems/crypto",
       "version": "1.0.4",
       "artifact": "pramanasystems-crypto-1.0.4.tgz",
-      "sha256": "89ad72da7fa8dc33afe0431dc468c318d4ac88754ceeed68e74943673cc974ff"
+      "sha256": "29950616b9f7e3019d0d290f9dbc47d3afa05b55cb94545f9110dde636252bcb"
     },
     {
       "package": "@pramanasystems/governance",
       "version": "1.0.4",
       "artifact": "pramanasystems-governance-1.0.4.tgz",
-      "sha256": "7481f172c915c1f3e75ed2117c921d182e2aba9439a8f519de3cd393f9d1a926"
+      "sha256": "d3c723c4dbe194190565664a8fdd61511c8ee6226336db65a0dedb4cd056e74c"
     },
     {
       "package": "@pramanasystems/execution",
       "version": "1.0.4",
       "artifact": "pramanasystems-execution-1.0.4.tgz",
-      "sha256": "30afb5445d564add9086c2b48d3911a950f94f3c9c26e1d8a50758ab92f314a2"
+      "sha256": "aff05071b4e2df4b5349f8b9eff3422901ded5df8a7186148ab01804e0727f06"
     },
     {
       "package": "@pramanasystems/verifier",
       "version": "1.0.4",
       "artifact": "pramanasystems-verifier-1.0.4.tgz",
-      "sha256": "6d6e14f058f8a3ee6fa5762907d4bc1fb113f75b4927855cb6b46cad33888b6b"
+      "sha256": "d78cbff601e66fc332a560ee841262804f86805d3a589a5ef3b18fd1bb02acdc"
     },
     {
       "package": "@pramanasystems/core",
       "version": "1.0.4",
       "artifact": "pramanasystems-core-1.0.4.tgz",
-      "sha256": "b3ecb1c8fdee9f5e9a8119604d2d930fcf0f1499761f209a7a14590df68c395f"
+      "sha256": "87ac06ee144c3df70f6b6693341ec8b0ad9f882a69db44ddc49f08b46f3c3d66"
     },
     {
       "package": "@pramanasystems/verifier-cli",
       "version": "1.0.5",
       "artifact": "pramanasystems-verifier-cli-1.0.5.tgz",
-      "sha256": "a73ae549274aa3aa43e09eb378d465cbb728b043741869f38867f9456d10aaf2"
+      "sha256": "3c7c0a1829792b555901e1af61e2ecbfa005b5a761cb15f34a491ff807e21ab2"
     }
   ]
 }

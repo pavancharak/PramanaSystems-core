@@ -14,11 +14,15 @@ coverage/
 *.sig.tmp
 *.audit.tmp
 
+# Key material — never commit private or local dev keys
+dev-keys/
+*.pem
+trust/*.key
 PramanaSystems_bundle_key
 PramanaSystems_bundle_key.pub
-
 test-keys/PramanaSystems_test_key
 
 runtime-audit/*.jsonl
 
-trust/*.key
+# Orphaned submodule clone — not part of the project
+PramanaSystems/
