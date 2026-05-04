@@ -4,7 +4,7 @@
 
 
 <p align="center">
-  <img src="./assets/governance-banner.png" alt="Pramana Systems Banner" />
+ <img src="./assets/pramana-governance-banner.png" alt="Pramana Systems Banner" />
 </p>
 
 # PramanaSystems Core
