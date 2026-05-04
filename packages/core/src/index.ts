@@ -44,7 +44,6 @@ export type {
 
 export type {
   RuntimeRequirements,
-  ExecutionRequirements
 } from "@pramanasystems/governance";
 
 // Deterministic Validation

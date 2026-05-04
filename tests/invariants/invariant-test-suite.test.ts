@@ -134,12 +134,6 @@ function makeContext(overrides: Record<string, unknown> = {}) {
       supported_runtime_versions: ["1.0.0"],
       supported_schema_versions: ["1.0.0"],
     },
-    execution_requirements: {
-      replay_protection_required: true,
-      attestation_required: true,
-      audit_chain_required: true,
-      independent_verification_required: true,
-    },
     ...overrides,
   };
 }
@@ -476,9 +470,7 @@ describe("CLASS 3 — Governance Enforcement", () => {
       expect(() => executeDecision(makeContext({ token, token_signature: sig, signer, verifier,
         runtime_manifest: makeRuntimeManifest({ capabilities: [] }),
         runtime_requirements: { required_capabilities: ["attestation-signing"],
-          supported_runtime_versions: ["1.0.0"], supported_schema_versions: ["1.0.0"] },
-        execution_requirements: { replay_protection_required: false, attestation_required: false,
-          audit_chain_required: false, independent_verification_required: false } }) as any,
+          supported_runtime_versions: ["1.0.0"], supported_schema_versions: ["1.0.0"] } }) as any,
         new MemoryReplayStore())).toThrow(/Missing runtime capability/);
     });
   });
@@ -957,9 +949,7 @@ describe("CLASS 13 — Governance Event Completeness", () => {
       const sig = signExecutionToken(token, signer);
       expect(() => executeDecision(makeContext({ token, token_signature: sig, signer, verifier,
         runtime_requirements: { required_capabilities: [], supported_runtime_versions: ["1.0.0"],
-          supported_schema_versions: ["99.0.0"] },
-        execution_requirements: { replay_protection_required: false, attestation_required: false,
-          audit_chain_required: false, independent_verification_required: false } }) as any,
+          supported_schema_versions: ["99.0.0"] } }) as any,
         new MemoryReplayStore())).toThrow(/Unsupported schema version/i);
     });
   });
@@ -989,9 +979,7 @@ describe("META-INVARIANTS", () => {
       expect(() => executeDecision(makeContext({ token, token_signature: sig, signer, verifier,
         runtime_manifest: makeRuntimeManifest({ capabilities: [] }),
         runtime_requirements: { required_capabilities: ["attestation-signing"],
-          supported_runtime_versions: ["1.0.0"], supported_schema_versions: ["1.0.0"] },
-        execution_requirements: { replay_protection_required: false, attestation_required: false,
-          audit_chain_required: false, independent_verification_required: false } }) as any,
+          supported_runtime_versions: ["1.0.0"], supported_schema_versions: ["1.0.0"] } }) as any,
         new MemoryReplayStore())).toThrow();
     });
 
@@ -1002,5 +990,98 @@ describe("META-INVARIANTS", () => {
       const attestation = executeDecision(makeContext({ token, token_signature: sig, signer, verifier }) as any, store);
       expect(verifyAttestation({ ...attestation, signature: "TAMPERED" } as any, verifier, getRuntimeManifest()).valid).toBe(false);
     });
+  });
+});
+
+describe("GAP-1 FIX — ExecutionRequirements removed, structural enforcement", () => {
+
+  it("ExecutionResult always has governed: true", () => {
+    const signer = makeSigner();
+    const verifier = makeVerifier();
+    const store = new MemoryReplayStore();
+    const token = makeToken();
+    const sig = signExecutionToken(token, signer);
+    const ctx = makeContext({ token, token_signature: sig, signer, verifier });
+    const attestation = executeDecision(ctx as any, store);
+    expect(attestation.result.governed).toBe(true);
+  });
+
+  it("verifyAttestation rejects result with governed: false", () => {
+    const signer = makeSigner();
+    const verifier = makeVerifier();
+    const store = new MemoryReplayStore();
+    const token = makeToken();
+    const sig = signExecutionToken(token, signer);
+    const ctx = makeContext({ token, token_signature: sig, signer, verifier });
+    const attestation = executeDecision(ctx as any, store);
+
+    const tampered = {
+      ...attestation,
+      result: { ...attestation.result, governed: false },
+    };
+    const result = verifyAttestation(tampered as any, verifier, getRuntimeManifest());
+    expect(result.valid).toBe(false);
+    expect(result.checks.governed).toBe(false);
+  });
+
+  it("verifyAttestation rejects result with governed field absent", () => {
+    const signer = makeSigner();
+    const verifier = makeVerifier();
+    const store = new MemoryReplayStore();
+    const token = makeToken();
+    const sig = signExecutionToken(token, signer);
+    const ctx = makeContext({ token, token_signature: sig, signer, verifier });
+    const attestation = executeDecision(ctx as any, store);
+
+    const { governed: _, ...resultWithoutGoverned } = attestation.result;
+    const tampered = { ...attestation, result: resultWithoutGoverned };
+    const result = verifyAttestation(tampered as any, verifier, getRuntimeManifest());
+    expect(result.valid).toBe(false);
+    expect(result.checks.governed).toBe(false);
+  });
+
+  it("DryRunResult has governed: false and dry_run: true", async () => {
+    const { evaluateDryRun } = await import("@pramanasystems/execution");
+    const result = evaluateDryRun("claims-approval", "v1", {
+      insurance_active: true,
+      risk_score: 30,
+      vip_customer: false,
+    });
+    expect(result.governed).toBe(false);
+    expect(result.dry_run).toBe(true);
+    expect(result.decision).toBeTruthy();
+  });
+
+  it("replay protection fires unconditionally on second execution", () => {
+    const signer = makeSigner();
+    const verifier = makeVerifier();
+    const store = new MemoryReplayStore();
+    const token = makeToken();
+    const sig = signExecutionToken(token, signer);
+    const ctx = makeContext({ token, token_signature: sig, signer, verifier });
+
+    executeDecision(ctx as any, store);
+
+    const sig2 = signExecutionToken({ ...token }, signer);
+    const ctx2 = makeContext({
+      token: { ...token },
+      token_signature: sig2,
+      signer,
+      verifier,
+    });
+    expect(() => executeDecision(ctx2 as any, store)).toThrow(/Replay/);
+  });
+
+  it("verifyAttestation checks.governed is true for valid governed attestation", () => {
+    const signer = makeSigner();
+    const verifier = makeVerifier();
+    const store = new MemoryReplayStore();
+    const token = makeToken();
+    const sig = signExecutionToken(token, signer);
+    const ctx = makeContext({ token, token_signature: sig, signer, verifier });
+    const attestation = executeDecision(ctx as any, store);
+    const result = verifyAttestation(attestation, verifier, getRuntimeManifest());
+    expect(result.valid).toBe(true);
+    expect(result.checks.governed).toBe(true);
   });
 });

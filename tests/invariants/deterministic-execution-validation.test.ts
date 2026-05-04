@@ -95,6 +95,7 @@ function baseResult(overrides = {}) {
     decision: "approve",
     signals_hash: "fixed-signals-hash",
     executed_at: "2024-01-01T00:00:00.000Z",
+    governed: true as const,
     ...overrides,
   };
 }
@@ -110,12 +111,6 @@ function makeContext(token: any, sig: string, overrides = {}) {
       required_capabilities: ["replay-protection", "attestation-signing"],
       supported_runtime_versions: ["1.0.0"],
       supported_schema_versions: ["1.0.0"],
-    },
-    execution_requirements: {
-      replay_protection_required: true,
-      attestation_required: true,
-      audit_chain_required: true,
-      independent_verification_required: true,
     },
     ...overrides,
   };
@@ -1055,12 +1050,6 @@ describe("G11 — Failures are deterministic and reproducible", () => {
         supported_runtime_versions: ["1.0.0"],
         supported_schema_versions: ["1.0.0"],
       },
-      execution_requirements: {
-        replay_protection_required: false,
-        attestation_required: false,
-        audit_chain_required: false,
-        independent_verification_required: false,
-      },
     });
     for (let i = 0; i < 3; i++) {
       expect(() => executeDecision(ctx as any, new MemoryReplayStore()))
@@ -1265,12 +1254,6 @@ describe("G13 — Any deviation fails the pipeline (fail-closed)", () => {
           supported_runtime_versions: ["1.0.0"],
           supported_schema_versions: ["99.0.0"],
         },
-        execution_requirements: {
-          replay_protection_required: false,
-          attestation_required: false,
-          audit_chain_required: false,
-          independent_verification_required: false,
-        },
       }) as any, new MemoryReplayStore())
     ).toThrow(/Unsupported schema version/i);
   });
@@ -1286,12 +1269,6 @@ describe("G13 — Any deviation fails the pipeline (fail-closed)", () => {
           required_capabilities: ["attestation-signing"],
           supported_runtime_versions: ["1.0.0"],
           supported_schema_versions: ["1.0.0"],
-        },
-        execution_requirements: {
-          replay_protection_required: false,
-          attestation_required: false,
-          audit_chain_required: false,
-          independent_verification_required: false,
         },
       }) as any, new MemoryReplayStore())
     ).toThrow(/Missing runtime capability/i);

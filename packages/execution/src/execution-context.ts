@@ -18,40 +18,34 @@ import type {
   RuntimeRequirements,
 } from "@pramanasystems/governance";
 
-import type {
-  ExecutionRequirements,
-} from "@pramanasystems/governance";
-
 /**
  * Full context required by {@link executeDecision}.
  *
- * Bundles the pre-signed execution token with the cryptographic infrastructure
- * (signer/verifier), the active runtime manifest, and the governance requirement
- * flags that must be satisfied before the decision proceeds.
+ * execution_requirements has been removed. All governance properties
+ * (replay protection, attestation issuance, audit chain, independent
+ * verification) are structurally enforced inside executeDecision.
+ * They are not configurable. Enforces: META-001, INV-013, INV-014,
+ * INV-015, INV-033.
  */
 export interface ExecutionContext {
   /** The pre-issued, time-limited execution token. */
   token: ExecutionToken;
 
-  /** Base64 Ed25519 signature over the canonical token, produced by the issuing authority. */
+  /** Base64 Ed25519 signature over the canonical token. */
   token_signature: string;
 
-  /** Signer used to sign the {@link ExecutionResult} at the end of the execution pipeline. */
+  /** Signer used to sign the ExecutionResult. */
   signer: Signer;
 
-  /** Verifier used to authenticate the execution token at the start of the execution pipeline. */
+  /** Verifier used to authenticate the execution token. */
   verifier: Verifier;
 
   /** Manifest describing the currently active governance runtime. */
   runtime_manifest: RuntimeManifest;
 
-  /** Version and capability constraints the runtime must satisfy to execute this bundle. */
+  /** Version and capability constraints the runtime must satisfy. */
   runtime_requirements: RuntimeRequirements;
-
-  /** Security properties the execution environment must provide. */
-  execution_requirements: ExecutionRequirements;
 }
-
 
 
 

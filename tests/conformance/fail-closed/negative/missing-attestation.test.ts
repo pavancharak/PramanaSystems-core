@@ -17,47 +17,28 @@ describe(
   "Missing Attestation Negative Conformance",
   () => {
     test(
-      "missing attestations fail closed",
+      "governance is structurally enforced — executeDecision always produces governed: true",
       () => {
         const replayStore =
           new MemoryReplayStore();
 
-        const context = {
-          ...executionContext,
-
-          runtime_requirements: {
-            ...executionContext.runtime_requirements,
-
-            required_capabilities: [
-              "replay-protection",
-            ],
-          },
-
-          runtime_manifest: {
-            ...executionContext.runtime_manifest,
-
-            capabilities:
-              executionContext
-                .runtime_manifest
-                .capabilities
-                .filter(
-                  (
-                    capability
-                  ) =>
-                    capability !==
-                    "attestation-signing"
-                ),
-          },
-        };
-
-        expect(() =>
+        // ExecutionRequirements has been removed. Attestation issuance is now
+        // structurally enforced inside executeDecision — not configurable.
+        // governed: true is always present in every ExecutionResult.
+        const attestation =
           executeDecision(
-            context,
+            executionContext,
             replayStore
-          )
-        ).toThrow(
-          "Missing execution requirement: attestation-signing"
-        );
+          );
+
+        expect(attestation.result.governed)
+          .toBe(true);
+
+        expect(typeof attestation.signature)
+          .toBe("string");
+
+        expect(attestation.signature.length)
+          .toBeGreaterThan(0);
       }
     );
   }

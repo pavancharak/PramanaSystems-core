@@ -21,7 +21,6 @@ import {
 import {
   runtimeManifest,
   runtimeRequirements,
-  executionRequirements,
 } from "../../fixtures/execution-context-fixture";
 
 const signer =
@@ -76,9 +75,6 @@ describe(
 
           runtime_requirements:
             runtimeRequirements,
-
-          execution_requirements:
-            executionRequirements,
         });
 
         expect(() =>
@@ -97,9 +93,6 @@ describe(
 
             runtime_requirements:
               runtimeRequirements,
-
-            execution_requirements:
-              executionRequirements,
           })
         ).toThrow(
           "Replay attack detected"

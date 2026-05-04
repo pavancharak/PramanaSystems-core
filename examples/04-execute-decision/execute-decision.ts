@@ -27,7 +27,6 @@ import type {
 
 import type {
   RuntimeRequirements,
-  ExecutionRequirements,
 } from "@pramanasystems/governance";
 
 import {
@@ -74,18 +73,12 @@ console.log("\ntokenSignature :", tokenSignature.slice(0, 32) + "…");
 
 // ── 5. Construct the ExecutionContext ─────────────────────────────────────────
 // RuntimeRequirements declares which runtime versions and capabilities are
-// acceptable.  ExecutionRequirements enables the security flags.
+// acceptable. All governance properties (replay protection, attestation,
+// audit chain) are now structurally enforced and not configurable.
 const runtimeRequirements: RuntimeRequirements = {
   required_capabilities:       ["deterministic-evaluation", "attestation-signing", "replay-protection"],
   supported_runtime_versions:  ["1.0.0"],
   supported_schema_versions:   ["1.0.0"],
-};
-
-const executionRequirements: ExecutionRequirements = {
-  replay_protection_required:          true,
-  attestation_required:                true,
-  audit_chain_required:                false,
-  independent_verification_required:   true,
 };
 
 const context: ExecutionContext = {
@@ -95,7 +88,6 @@ const context: ExecutionContext = {
   verifier,
   runtime_manifest:    getRuntimeManifest(),
   runtime_requirements: runtimeRequirements,
-  execution_requirements: executionRequirements,
 };
 
 // ── 6. Execute the governance decision ───────────────────────────────────────
@@ -106,6 +98,7 @@ console.log("\n=== ExecutionAttestation ===");
 console.log("execution_id  :", attestation.result.execution_id);
 console.log("policy_id     :", attestation.result.policy_id);
 console.log("decision      :", attestation.result.decision);
+console.log("governed      :", attestation.result.governed);
 console.log("runtime_hash  :", attestation.result.runtime_hash.slice(0, 16) + "…");
 console.log("signature     :", attestation.signature.slice(0, 32) + "…");
 
@@ -115,6 +108,7 @@ const result     = verifyAttestation(attestation, verifier, manifest);
 
 console.log("\n=== VerificationResult ===");
 console.log("valid              :", result.valid);
+console.log("governed           :", result.checks.governed);
 console.log("signature_verified :", result.checks.signature_verified);
 console.log("runtime_verified   :", result.checks.runtime_verified);
 console.log("schema_compatible  :", result.checks.schema_compatible);

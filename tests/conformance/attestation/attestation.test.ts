@@ -23,7 +23,6 @@ import {
 import {
   runtimeManifest,
   runtimeRequirements,
-  executionRequirements,
 } from "../../fixtures/execution-context-fixture";
 
 const signer =
@@ -79,9 +78,6 @@ describe(
 
             runtime_requirements:
               runtimeRequirements,
-
-            execution_requirements:
-              executionRequirements,
           });
 
         const valid =

@@ -2,10 +2,6 @@ import type {
   RuntimeManifest,
 } from "@pramanasystems/execution";
 
-import type {
-  ExecutionRequirements,
-} from "@pramanasystems/governance";
-
 /** Result of verifying that a runtime satisfies a set of execution security requirements. */
 export interface ExecutionRequirementResult {
   /** `true` when the runtime satisfies all requirements. */
@@ -14,6 +10,13 @@ export interface ExecutionRequirementResult {
   /** List of capability strings that are required but absent from the runtime. */
   missing_requirements: string[];
 }
+
+type ExecutionRequirementsInput = {
+  replay_protection_required?: boolean;
+  attestation_required?: boolean;
+  audit_chain_required?: boolean;
+  [key: string]: boolean | undefined;
+};
 
 /**
  * Checks that `manifest.capabilities` satisfies every flag set in
@@ -25,7 +28,7 @@ export interface ExecutionRequirementResult {
  */
 export function verifyExecutionRequirements(
   manifest: RuntimeManifest,
-  requirements: ExecutionRequirements
+  requirements: ExecutionRequirementsInput
 ): ExecutionRequirementResult {
 
   const missing: string[] = [];
@@ -71,7 +74,6 @@ export function verifyExecutionRequirements(
       missing,
   };
 }
-
 
 
 

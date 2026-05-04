@@ -54,78 +54,6 @@ import {
   getRuntimeManifest,
 } from "./runtime-manifest";
 
-function getMissingExecutionRequirements(
-  capabilities: readonly string[],
-  executionRequirements: ExecutionContext["execution_requirements"]
-): string[] {
-  const missing =
-    new Set<string>();
-
-  if (
-    executionRequirements
-      .replay_protection_required &&
-    !capabilities.includes(
-      "replay-protection"
-    )
-  ) {
-    missing.add(
-      "replay-protection"
-    );
-  }
-
-  if (
-    executionRequirements
-      .attestation_required &&
-    !capabilities.includes(
-      "attestation-signing"
-    )
-  ) {
-    missing.add(
-      "attestation-signing"
-    );
-  }
-
-  if (
-    executionRequirements
-      .audit_chain_required &&
-    !capabilities.includes(
-      "bundle-verification"
-    )
-  ) {
-    missing.add(
-      "bundle-verification"
-    );
-  }
-
-  if (
-    executionRequirements
-      .independent_verification_required
-  ) {
-    if (
-      !capabilities.includes(
-        "attestation-signing"
-      )
-    ) {
-      missing.add(
-        "attestation-signing"
-      );
-    }
-
-    if (
-      !capabilities.includes(
-        "bundle-verification"
-      )
-    ) {
-      missing.add(
-        "bundle-verification"
-      );
-    }
-  }
-
-  return [
-    ...missing,
-  ];
-}
 
 const defaultReplayStore =
   new MemoryReplayStore();
@@ -136,7 +64,7 @@ const defaultReplayStore =
  * 1. **Version compatibility** — verifies the runtime version and schema version
  *    satisfy the requirements declared in the bundle manifest.
  * 2. **Capability check** — ensures the runtime advertises every capability
- *    required by the bundle and by `execution_requirements`.
+ *    required by the bundle.
  * 3. **Token verification** — validates the cryptographic signature on the token.
  * 4. **Expiry check** — rejects tokens that have exceeded their TTL.
  * 5. **Replay protection** — rejects execution IDs already present in `replayStore`.
@@ -161,7 +89,6 @@ export function executeDecision(
     verifier,
     runtime_manifest,
     runtime_requirements,
-    execution_requirements,
   } = context;
 
   if (
@@ -215,21 +142,6 @@ export function executeDecision(
     }
   }
 
-  const missingExecutionRequirements =
-    getMissingExecutionRequirements(
-      runtime_manifest.capabilities,
-      execution_requirements
-    );
-
-  if (
-    missingExecutionRequirements.length >
-    0
-  ) {
-    throw new Error(
-      `Missing execution requirement: ${missingExecutionRequirements.join(", ")}`
-    );
-  }
-
   const valid =
     verifyExecutionToken(
       token,
@@ -260,13 +172,14 @@ export function executeDecision(
   const executionId =
     token.execution_id;
 
+  // INV-013: Replay protection is always enforced — not configurable.
   if (
     replayStore.hasExecuted(
       executionId
     )
   ) {
     throw new Error(
-      "Replay attack detected"
+      `Replay attack detected: execution_id ${executionId} has already been consumed`
     );
   }
 
@@ -274,6 +187,8 @@ export function executeDecision(
     executionId
   );
 
+  // INV-015: Audit record is always written before attestation is issued.
+  // If this write fails, the error propagates and attestation is NOT issued.
   appendAuditRecord(
     token
   );
@@ -306,6 +221,9 @@ export function executeDecision(
     executed_at:
       new Date()
         .toISOString(),
+
+    governed:
+      true,
   };
 
   const executionSignature =
@@ -328,10 +246,9 @@ export function executeDecision(
  * Convenience wrapper around {@link executeDecision} that handles token issuance
  * and signing internally.
  *
- * Uses a minimal {@link ExecutionContext} with all security flags set to `false`,
- * making it suitable for simple integrations and the REST API's `/execute` route.
- * For high-assurance deployments construct the {@link ExecutionContext} manually
- * with the appropriate {@link ExecutionRequirements}.
+ * Suitable for simple integrations and the REST API's `/execute` route.
+ * All governance properties (replay protection, attestation, audit chain)
+ * are structurally enforced — not configurable.
  *
  * @param input   - Policy reference and decision inputs.
  * @param signer  - Signer used for both token signing and result attestation.
@@ -377,20 +294,6 @@ export function executeSimple(
       ["1.0.0"],
   };
 
-  const executionRequirements = {
-    replay_protection_required:
-      false,
-
-    attestation_required:
-      false,
-
-    audit_chain_required:
-      false,
-
-    independent_verification_required:
-      false,
-  };
-
   const context: ExecutionContext = {
     token,
 
@@ -406,9 +309,6 @@ export function executeSimple(
 
     runtime_requirements:
       runtimeRequirements,
-
-    execution_requirements:
-      executionRequirements,
   };
 
   return executeDecision(

@@ -9,7 +9,6 @@ import {
 
 import type {
   RuntimeRequirements,
-  ExecutionRequirements,
 } from "@pramanasystems/governance";
 
 export const runtimeManifest =
@@ -28,16 +27,6 @@ export const runtimeRequirements: RuntimeRequirements = {
   supported_schema_versions: [
     "1.0.0",
   ],
-};
-
-export const executionRequirements: ExecutionRequirements = {
-  replay_protection_required: true,
-
-  attestation_required: true,
-
-  audit_chain_required: true,
-
-  independent_verification_required: true,
 };
 
 export const executionToken = {
@@ -106,9 +95,6 @@ export const executionContext = {
 
   runtime_requirements:
     runtimeRequirements,
-
-  execution_requirements:
-    executionRequirements,
 };
 
 

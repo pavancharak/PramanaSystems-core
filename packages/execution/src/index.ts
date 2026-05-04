@@ -48,6 +48,8 @@ export * from "./local-signer";
 
 export * from "./local-verifier";
 
+export * from "./dry-run";
+
 
 
 
