@@ -4,7 +4,7 @@
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/pramana-systems/.github/main/assets/governance-banner.png" />
+  <img src="./assets/governance-banner.png" alt="Pramana Systems Banner" />
 </p>
 
 # PramanaSystems Core
